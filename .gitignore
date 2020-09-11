@@ -3,5 +3,6 @@
 .RData
 .Ruserdata
 osf_pat.txt
+/misc
 /data
 /data-raw
