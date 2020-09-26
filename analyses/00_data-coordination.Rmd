@@ -1,0 +1,104 @@
+---
+title: "SCORE: Fielding-Miller et al. (2020) replication"
+subtitle: "Data coordination"
+author: "Radoslaw Panczak"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+mainfont: DejaVu Sans
+output: 
+  html_document: 
+    toc: true
+    toc_depth: 4
+    toc_float: true
+    number_sections: true
+    theme: united 
+    highlight: pygments 
+editor_options: 
+  chunk_output_type: console
+---
+
+<!-- ------------------------------------------------------------ --> 
+<!-- ------------------------------------------------------------ --> 
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, 
+                      fig.width=8, fig.height=6, dpi=300, 
+                      out.width="800px", out.height="600px")
+
+knitr::opts_knit$set(root.dir = rprojroot::find_rstudio_root_file())
+
+options(scipen=999)
+
+set.seed(12345)
+
+library(pacman) 
+
+p_load(osfr, readr, dplyr)
+```
+
+# Data download from osf
+
+```{r osf-auth, include=FALSE}
+osf_pat <- readr::read_file("osf_pat.txt")
+osf_auth(osf_pat)
+
+project <- osf_retrieve_node("w7gdb")
+
+project
+```
+
+```{r osf-down, eval=FALSE, include=FALSE}
+# osf_ls_files(project)
+# osf_ls_nodes(project)
+
+dir.create(file.path("data-raw/Raw files"), showWarnings = FALSE)
+dir.create(file.path("data-raw/Script"), showWarnings = FALSE)
+
+project %>%
+  osf_ls_nodes() %>%
+  filter(name == "Data") %>%
+  osf_ls_files() %>%
+  filter(name == "Raw files") %>%
+  osf_ls_files() %>% 
+  osf_download(path = "data-raw/Raw files")
+
+project %>%
+  osf_ls_nodes() %>% 
+  filter(name == "Data") %>%
+  osf_ls_files() %>% 
+  filter(name == "Script") %>%
+  osf_ls_files() %>% 
+  osf_download(path = "data-raw/Script")
+
+```
+
+For some mysterious reason `merged_covid_usa.dta` file is not being downloaded? Raise with osf / package maintainer?
+
+# Manually added to osf
+
+Three resolutions form [here](https://www.census.gov/geographies/mapping-files/time-series/geo/carto-boundary-file.html) `cb_2018_us_cd116_20m.zip`, `cb_2018_us_cd116_5m.zip` and `cb_2018_us_cd116_500k.zip`. The aim is to start with 'lightest' 20m file and fall back into more precise ones only if necessary.
+
+Backup of older file `tl_2016_us_county.zip` from [here](https://www2.census.gov/geo/tiger/TIGER2016/COUNTY/?sec_ak_reference=18.e0fd717.1515267074.5aed87d). Since authors did not specify the details of spatial boundaries used this one might be investigated if the files above do not link correctly.
+
+```{r osf-down-sp, eval=FALSE, include=FALSE}
+
+dir.create(file.path("data-raw/Spatial"), showWarnings = FALSE)
+
+project %>%
+  osf_ls_nodes() %>% 
+  filter(name == "Data") %>%
+  osf_ls_files() %>% 
+  filter(name == "Spatial") %>%
+  osf_ls_files() %>% 
+  osf_download(path = "data-raw/Spatial")
+```
+
+
+# Data upload to osf
+
+```{r osf-up, eval=FALSE, include=FALSE}
+upload_location <- project %>%
+  osf_ls_nodes() %>%
+  filter(name == "Analysis")
+
+osf_upload(upload_location, path = "cleaning.R", conflicts = "overwrite")
+```
