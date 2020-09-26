@@ -84,6 +84,8 @@ Three resolutions form [here](https://www.census.gov/geographies/mapping-files/t
 
 Backup of older file `tl_2016_us_county.zip` from [here](https://www2.census.gov/geo/tiger/TIGER2016/COUNTY/?sec_ak_reference=18.e0fd717.1515267074.5aed87d). Since authors did not specify the details of spatial boundaries used this one might be investigated if the files above do not link correctly.
 
+Lookup table of FIPS codes are from [here](https://www.census.gov/geographies/reference-files/2018/demo/popest/2018-fips.html)
+
 ```{r osf-down-sp, eval=FALSE, include=FALSE}
 
 dir.create(file.path("data-raw/Spatial"), showWarnings = FALSE)
