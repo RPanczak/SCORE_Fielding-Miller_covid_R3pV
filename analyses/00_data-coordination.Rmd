@@ -35,7 +35,11 @@ library(pacman)
 p_load(osfr, readr, dplyr)
 ```
 
-# Data download from osf
+# Purpose
+
+Simple script top automate data download anu upload to osf.
+
+# Data download
 
 ```{r osf-auth, include=FALSE}
 osf_pat <- readr::read_file("osf_pat.txt")
@@ -71,7 +75,8 @@ project %>%
 
 ```
 
-For some mysterious reason `merged_covid_usa.dta` file is not being downloaded? Raise with osf / package maintainer?
+For some mysterious reason `merged_covid_usa.dta` file is not being downloaded? 
+Raise with osf / package maintainer?
 
 # Manually added to osf
 
@@ -94,6 +99,8 @@ project %>%
 
 
 # Data upload to osf
+
+To be updated once 
 
 ```{r osf-up, eval=FALSE, include=FALSE}
 upload_location <- project %>%
