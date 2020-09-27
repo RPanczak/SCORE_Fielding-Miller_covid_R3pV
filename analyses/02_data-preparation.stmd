@@ -1,0 +1,255 @@
+---
+title: SCORE: Fielding-Miller et al. (2020) replication
+subtitle: Data preparation
+author: Radoslaw Panczak, University of Bern
+date: `s c(current_date)`
+---
+
+# Input
+
+Read data and format date. Starrting point:
+
+```s/
+	set seed 12345
+	
+	if "`c(username)'" == "panczak" {
+			
+	cd "C:\external\SCORE_Fielding-Miller_covid_R3pV"
+	}
+	else {    
+		* settings for other users
+	}	
+	
+	use "data-raw\Script\merged_covid_usa.dta" , clear
+	
+	d
+	
+	gen date_proper = date(date, "YMD")
+	format date_proper %tdCCYY-NN-DD
+	order date_proper, a(date)
+	
+	la var cases "Cases"
+```
+
+# Missing data 
+
+```s
+	mdesc
+```
+
+# Exclusions
+
+Excluding cases where no fips code is available and no date is specified.
+
+```s
+	drop if mi(fips)
+	drop if mi(date)
+```
+
+Authors specifythat analysis focuses on 50 states - that most likely means exclusions of `Northern Mariana Islands`, `Puerto rico` and `Hawaii`. All counties from there were excluded.
+
+American Samoa				AS	60
+Guam						GU	66
+Northern Mariana Islands	MP	69
+Puerto Rico					PR	72
+Virgin Islands				VI	78
+
+```s
+	drop if state == "Northern Mariana Islands"
+	drop if state == "Puerto Rico"
+	drop if state == "Hawaii"
+	
+	* first two could be also achieved with 
+	* drop if fips >= 60000
+	su fips
+```
+
+Data is prepared beyond time point of preprint analysis which is `2020-04-26` - these numbers are not needed for the replication of the claim and are excluded, 
+
+```s
+	drop if date_proper > date("2020-04-26", "YMD")
+
+	*fillin date_proper fips
+
+	sort fips date_proper, stable	
+```	
+# Still some missings
+
+Waiting for response from data finder.
+
+```s
+	ta county if mi(S1602_C01_001E) // & date == "2020-04-26"
+	ta county if mi(S1701_C03_001E) // & date == "2020-04-26"
+	ta county if mi(LABOR) 			// & date == "2020-04-26"
+```
+
+# Five boroughs of New York City
+
+Five of New York's counties were aggregated for counting cases/deaths in the paper. Most likely following data format from NYT.
+
+Counties/boroughs and their codes are:
+
+  - The Bronx is Bronx County (FIPS 36005)
+  - Brooklyn is Kings County (FIPS 36047)
+  - Manhattan is New York County (FIPS 36061)
+  - Queens is Queens County (FIPS 36081)
+  - Staten Island is Richmond County (FIPS 36085)
+
+**Data is missing in the prepared files**, although traces of it are found in raw data? Explanation needed from data finder here?
+
+```s
+	count if inlist(fips, 36005, 36047, 36061, 36081, 36085)
+```
+
+It might be lucky that we only test the rural counties?
+
+Not sure what the impact on spatial set up is? Were these counties aggregated in shape files to form one NY?
+
+# Regression variables
+
+## % nonenglish speaking hh 
+
+Already in the dataset
+
+```s
+	ren S1602_C01_001E nonenglish
+	order nonenglish, a(deaths)
+	la var nonenglish "% nonenglish speaking hh"
+	univar nonenglish, d(1)
+```
+
+## % engaged in farmwork 
+
+Already in the dataset
+
+```s
+	gen farmwork = (LABOR / DP05_0001E) * 100
+	order farmwork, a(nonenglish)
+	la var farmwork "% engaged in farmwork"
+	univar farmwork, d(1)
+```
+
+## % uninsured under 65 
+
+Already in the dataset
+
+```s
+	gen uninsured = S2701_C05_011E + S2701_C05_012E
+	order uninsured, a(farmwork)
+	la var uninsured "% uninsured under 65"
+	univar uninsured, d(1)
+```
+
+## % below poverty line 
+
+Already in the dataset
+
+```s
+	ren S1701_C03_001E poverty
+	order poverty, a(uninsured)
+	la var poverty "% nonenglish speaking hh"
+	univar poverty, d(1)
+```
+
+## % aged 65 and above 
+
+Already in the dataset
+
+```s
+	ren DP05_0024PE older
+	order older, a(poverty)
+	la var older "% aged 65 and above"
+	univar older, d(1)
+```
+
+## Pop density 
+
+Already in the dataset
+
+```s
+	ren A00002_002 pop_dens
+	order pop_dens, a(older)
+	la var pop_dens "Pop density"
+	univar pop_dens, d(1)
+```
+## Non urban counties
+
+Defined from pop density 
+
+```s
+	gen nonurban = pop_dens <= 1000
+	order nonurban, a(date_proper)
+	la var nonurban "Non-urban counties flag"
+	la de nonurban 0 "urban" 1 "non-urban"
+	la val nonurban nonurban
+	ta nonurban if date == "2020-04-26"
+```
+
+## No of days since 1st case 
+
+There are no records for states with 0 cases so first date in the database for each county is the date needed.
+
+```s
+	by fips: egen date_case1 = min(date_proper)
+	format date_case1 %tdCCYY-NN-DD
+	gen time_case1 = date_proper - date_case1
+	*drop date_case1
+	la var date_case1 "Date of case 1"
+	la var time_case1 "Days since case 1 in county"
+```
+
+## No of days between 100th case and shelter in place
+
+**Needs input from data finder!**
+
+```s
+	gen temp = date_proper if cases >= 100
+	by fips: egen date_case100 = min(temp)
+	drop temp
+	format date_case100 %tdCCYY-NN-DD
+	
+	/*
+	gen time_case100 = date_sip - date_case100
+	*drop date_case100
+	
+	* this states are 0 as per preprint specs 
+	replace time_case100 = 0 if inlist(state, "Arkansas", "Iowa", "Nebraska", "North Dakota", "Wyoming")
+	
+	la var date_case100 "Date of case 100"
+	la var time_case100 "Days between case 100 in county and SIP in state"
+	*/
+```
+
+# Outcome 
+
+Deaths reported by NY Times
+
+```s
+	la var deaths "Deaths"
+	univar deaths, d(0)
+	univar deaths, d(0) by(nonurban)
+```
+
+# Final dataset for analysis  
+
+Keeping only last entry on `2020-04-26`!
+
+```s
+	keep if date == "2020-04-26"
+	drop date date_proper
+	d
+	save "data\merged_covid_usa_prepared.dta" , replace
+```
+
+# Sample  of 5%
+
+Ignoring spatial relations!
+
+```s
+	sample 5
+	d
+	save "data\merged_covid_usa_prepared_sample.dta" , replace
+```
+	
+
+	
