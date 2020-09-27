@@ -7,3 +7,5 @@ osf_pat.txt
 /data
 /data-raw
 /original_publication
+*.smcl
+*.html
