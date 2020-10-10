@@ -64,10 +64,10 @@ date was long now str8
 Contains data from data-raw\Script\merged_covid_usa_v2.dta
   obs:       340,819                          
  vars:            16                          4 Oct 2020 20:00
-────────────────────────────────────────────────────────────────────────────
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
               storage   display    value
 variable name   type    format     label      variable label
-────────────────────────────────────────────────────────────────────────────
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 date            str8    %9s                   
 date_proper     float   %td..                 
 county          str33   %33s                  
@@ -82,10 +82,9 @@ S1701_C03_001E  double  %10.0g
 DP05_0001E      long    %10.0g                
 DP05_0024PE     double  %10.0g                
 LABOR           long    %10.0g                Value
-A00002_002      float   %9.0g                 Population Density (Per Sq.
-                                                Mile)
+A00002_002      float   %9.0g                 Population Density (Per Sq. Mile)
 sip_effect      float   %9.0g                 
-────────────────────────────────────────────────────────────────────────────
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 Sorted by: fips
      Note: Dataset has changed since last saved.
 </pre>
@@ -184,24 +183,21 @@ Valid   Joplin        │         22       7.89       7.89       7.89
 <pre class='stata'>. * ta county if mi(S1602_C01_001E) // &amp; date == "2020-04-26"
 . * ta county if mi(S1701_C03_001E) // &amp; date == "2020-04-26"
 . * ta county if mi(LABOR)             // &amp; date == "2020-04-26"
-. distinct county if mi(S1602_C01_001E) &amp; date_proper == date("2020-04-26", 
-> "YMD")
+. distinct county if mi(S1602_C01_001E) &amp; date_proper == date("2020-04-26", "YMD")
 
         │        Observations
         │      total   distinct
 ────────┼──────────────────────
  county │          1          1
 
-. distinct county if mi(S1701_C03_001E) &amp; date_proper == date("2020-04-26", 
-> "YMD")
+. distinct county if mi(S1701_C03_001E) &amp; date_proper == date("2020-04-26", "YMD")
 
         │        Observations
         │      total   distinct
 ────────┼──────────────────────
  county │          1          1
 
-. distinct county if mi(LABOR)             &amp; date_proper == date("2020-04-26
-> ", "YMD")
+. distinct county if mi(LABOR)             &amp; date_proper == date("2020-04-26", "YMD")
 
         │        Observations
         │      total   distinct
@@ -209,8 +205,7 @@ Valid   Joplin        │         22       7.89       7.89       7.89
  county │         92         92
 
 .     
-. fre state if mi(LABOR)             &amp; date_proper == date("2020-04-26", "YM
-> D")
+. fre state if mi(LABOR)             &amp; date_proper == date("2020-04-26", "YMD")
 
 state
 ─────────────────────────────┬────────────────────────────────────────────
@@ -265,16 +260,11 @@ Valid   Alaska               │         14      15.22      15.22      15.22
 . la var nonenglish "% nonenglish speaking hh"
 
 . univar nonenglish, d(1)
-                                        ────────────── Quantiles ───────────
-> ───
-Variable       n     Mean     S.D.      Min      .25      Mdn      .75      
-> Max
-────────────────────────────────────────────────────────────────────────────
-> ───
-nonenglish  331517      1.9      3.0      0.0      0.3      0.9      2.1    
->  38.6
-────────────────────────────────────────────────────────────────────────────
-> ───
+                                        ────────────── Quantiles ──────────────
+Variable       n     Mean     S.D.      Min      .25      Mdn      .75      Max
+───────────────────────────────────────────────────────────────────────────────
+nonenglish  331517      1.9      3.0      0.0      0.3      0.9      2.1     38.6
+───────────────────────────────────────────────────────────────────────────────
 </pre>
 <h2 id="engaged-in-farmwork">% engaged in farmwork</h2>
 <p>Already in the dataset</p>
@@ -286,16 +276,11 @@ nonenglish  331517      1.9      3.0      0.0      0.3      0.9      2.1
 . la var farmwork "% engaged in farmwork"
 
 . univar farmwork, d(1)
-                                        ────────────── Quantiles ───────────
-> ───
-Variable       n     Mean     S.D.      Min      .25      Mdn      .75      
-> Max
-────────────────────────────────────────────────────────────────────────────
-> ───
-farmwork  320242      2.6      3.5      0.0      0.6      1.4      3.1     4
-> 5.9
-────────────────────────────────────────────────────────────────────────────
-> ───
+                                        ────────────── Quantiles ──────────────
+Variable       n     Mean     S.D.      Min      .25      Mdn      .75      Max
+───────────────────────────────────────────────────────────────────────────────
+farmwork  320242      2.6      3.5      0.0      0.6      1.4      3.1     45.9
+───────────────────────────────────────────────────────────────────────────────
 </pre>
 <h2 id="uninsured-under-65">% uninsured under 65</h2>
 <p>Already in the dataset, but has to be constructed from two vars</p>
@@ -306,16 +291,11 @@ farmwork  320242      2.6      3.5      0.0      0.6      1.4      3.1     4
 . la var uninsured "% uninsured under 65"
 
 . univar uninsured, d(1)
-                                        ────────────── Quantiles ───────────
-> ───
-Variable       n     Mean     S.D.      Min      .25      Mdn      .75      
-> Max
-────────────────────────────────────────────────────────────────────────────
-> ───
-uninsured  331631     20.6     10.6      2.7     12.7     18.5     25.8     
-> 90.0
-────────────────────────────────────────────────────────────────────────────
-> ───
+                                        ────────────── Quantiles ──────────────
+Variable       n     Mean     S.D.      Min      .25      Mdn      .75      Max
+───────────────────────────────────────────────────────────────────────────────
+uninsured  331631     20.6     10.6      2.7     12.7     18.5     25.8     90.0
+───────────────────────────────────────────────────────────────────────────────
 </pre>
 <h2 id="below-poverty-line">% below poverty line</h2>
 <p>Already in the dataset</p>
@@ -326,16 +306,11 @@ uninsured  331631     20.6     10.6      2.7     12.7     18.5     25.8
 . la var poverty "% below poverty line"
 
 . univar poverty, d(1)
-                                        ────────────── Quantiles ───────────
-> ───
-Variable       n     Mean     S.D.      Min      .25      Mdn      .75      
-> Max
-────────────────────────────────────────────────────────────────────────────
-> ───
- poverty  331517     15.6      6.4      2.3     11.1     14.8     19.1     5
-> 5.1
-────────────────────────────────────────────────────────────────────────────
-> ───
+                                        ────────────── Quantiles ──────────────
+Variable       n     Mean     S.D.      Min      .25      Mdn      .75      Max
+───────────────────────────────────────────────────────────────────────────────
+ poverty  331517     15.6      6.4      2.3     11.1     14.8     19.1     55.1
+───────────────────────────────────────────────────────────────────────────────
 </pre>
 <h2 id="aged-65-and-above">% aged 65 and above</h2>
 <p>Already in the dataset</p>
@@ -346,16 +321,11 @@ Variable       n     Mean     S.D.      Min      .25      Mdn      .75
 . la var older "% aged 65 and above"
 
 . univar older, d(1)
-                                        ────────────── Quantiles ───────────
-> ───
-Variable       n     Mean     S.D.      Min      .25      Mdn      .75      
-> Max
-────────────────────────────────────────────────────────────────────────────
-> ───
-   older  331631     17.6      4.4      3.7     14.8     17.3     19.9     5
-> 4.2
-────────────────────────────────────────────────────────────────────────────
-> ───
+                                        ────────────── Quantiles ──────────────
+Variable       n     Mean     S.D.      Min      .25      Mdn      .75      Max
+───────────────────────────────────────────────────────────────────────────────
+   older  331631     17.6      4.4      3.7     14.8     17.3     19.9     54.2
+───────────────────────────────────────────────────────────────────────────────
 </pre>
 <h2 id="pop-density">Pop density</h2>
 <p>Already in the dataset</p>
@@ -366,16 +336,11 @@ Variable       n     Mean     S.D.      Min      .25      Mdn      .75
 . la var pop_dens "Pop density"
 
 . univar pop_dens, d(1)
-                                        ────────────── Quantiles ───────────
-> ───
-Variable       n     Mean     S.D.      Min      .25      Mdn      .75      
-> Max
-────────────────────────────────────────────────────────────────────────────
-> ───
-pop_dens  331631    255.9    909.6      0.0     22.4     52.6    144.4  1856
-> 5.5
-────────────────────────────────────────────────────────────────────────────
-> ───
+                                        ────────────── Quantiles ──────────────
+Variable       n     Mean     S.D.      Min      .25      Mdn      .75      Max
+───────────────────────────────────────────────────────────────────────────────
+pop_dens  331631    255.9    909.6      0.0     22.4     52.6    144.4  18565.5
+───────────────────────────────────────────────────────────────────────────────
 </pre>
 <h2 id="non-urban-counties">Non urban counties</h2>
 <p>Defined from pop density</p>
@@ -450,8 +415,7 @@ pop_dens  331631    255.9    909.6      0.0     22.4     52.6    144.4  1856
 . *drop date_case100
 .     
 . * this states are 0 as per preprint specs 
-. replace time_case100 = 0 if inlist(state, "Arkansas", "Iowa", "Nebraska", 
-> "North Dakota", "Wyoming")
+. replace time_case100 = 0 if inlist(state, "Arkansas", "Iowa", "Nebraska", "North Dakota", "Wyoming")
 (32,871 real changes made)
 
 .     
@@ -463,8 +427,7 @@ pop_dens  331631    255.9    909.6      0.0     22.4     52.6    144.4  1856
 </pre>
 <p>There is a problem with generating this variable for counties that did not reach 100 cases by the time analyses were conducted.</p>
 <p>Preprint is silent on what was done in such cases. The only two reasonable strategies would be to run analyses without counties with missing information (which would result in drastic sample size reduction) or impute it to 0. The latter has been applied in this case.</p>
-<pre class='stata'>. distinct fips if mi(time_case100) &amp; date_proper == date("2020-04-26", "YMD
-> ")
+<pre class='stata'>. distinct fips if mi(time_case100) &amp; date_proper == date("2020-04-26", "YMD")
 
        │        Observations
        │      total   distinct
@@ -490,42 +453,27 @@ Valid   South Dakota │        817     100.00     100.00     100.00
 <pre class='stata'>. la var deaths "Deaths"
 
 . univar deaths, d(0)
-                                        ────────────── Quantiles ───────────
-> ───
-Variable       n     Mean     S.D.      Min      .25      Mdn      .75      
-> Max
-────────────────────────────────────────────────────────────────────────────
-> ───
-  deaths  331631       22      137        0        0        1        5     4
-> 750
-────────────────────────────────────────────────────────────────────────────
-> ───
+                                        ────────────── Quantiles ──────────────
+Variable       n     Mean     S.D.      Min      .25      Mdn      .75      Max
+───────────────────────────────────────────────────────────────────────────────
+  deaths  331631       22      137        0        0        1        5     4750
+───────────────────────────────────────────────────────────────────────────────
 
 . univar deaths, d(0) by(nonurban)
 
 -> nonurban=urban 
-                                        ────────────── Quantiles ───────────
-> ───
-Variable       n     Mean     S.D.      Min      .25      Mdn      .75      
-> Max
-────────────────────────────────────────────────────────────────────────────
-> ───
-  deaths   18249      255      508        0        3       43      262     4
-> 750
-────────────────────────────────────────────────────────────────────────────
-> ───
+                                        ────────────── Quantiles ──────────────
+Variable       n     Mean     S.D.      Min      .25      Mdn      .75      Max
+───────────────────────────────────────────────────────────────────────────────
+  deaths   18249      255      508        0        3       43      262     4750
+───────────────────────────────────────────────────────────────────────────────
 
 -> nonurban=non-urban 
-                                        ────────────── Quantiles ───────────
-> ───
-Variable       n     Mean     S.D.      Min      .25      Mdn      .75      
-> Max
-────────────────────────────────────────────────────────────────────────────
-> ───
-  deaths  313382        8       37        0        0        1        4     1
-> 311
-────────────────────────────────────────────────────────────────────────────
-> ───
+                                        ────────────── Quantiles ──────────────
+Variable       n     Mean     S.D.      Min      .25      Mdn      .75      Max
+───────────────────────────────────────────────────────────────────────────────
+  deaths  313382        8       37        0        0        1        4     1311
+───────────────────────────────────────────────────────────────────────────────
 </pre>
 <h1 id="final-dataset-for-analysis">Final dataset for analysis</h1>
 <p>SCORE recomendation regarding time frame of the data:</p>
@@ -567,77 +515,59 @@ file data\merged_covid_usa_prepared_extended.dta saved
 
 file data\fips_sample.dta saved
 
-─────────────────────┬──────────────────────────────────────────────────────
-───
+─────────────────────┬─────────────────────────────────────────────────────────
 merge specs          │
        matching type │ 1:1
   mv's on match vars │ none
   unmatched obs from │ both
-─────────────────────┼──────────────────────────────────────────────────────
-───
+─────────────────────┼─────────────────────────────────────────────────────────
   master        file │ data\merged_covid_usa_prepared_original.dta
                  obs │   2791
                 vars │     22
           match vars │ fips  (key)
-  ───────────────────┼──────────────────────────────────────────────────────
-───
+  ───────────────────┼─────────────────────────────────────────────────────────
   using         file │ data\fips_sample.dta
                  obs │    157
                 vars │      1
           match vars │ fips  (key)
-─────────────────────┼──────────────────────────────────────────────────────
-───
+─────────────────────┼─────────────────────────────────────────────────────────
 result          file │ data\merged_covid_usa_prepared_original.dta
                  obs │   2823
                 vars │     24  (including _merge)
-         ────────────┼──────────────────────────────────────────────────────
-───
-              _merge │   2666  obs only in master data                (code=
-
-                     │     32  obs only in using data                 (code=
-
-                     │    125  obs both in master and using data      (code=
-
-─────────────────────┴──────────────────────────────────────────────────────
-───
+         ────────────┼─────────────────────────────────────────────────────────
+              _merge │   2666  obs only in master data                (code==1)
+                     │     32  obs only in using data                 (code==2)
+                     │    125  obs both in master and using data      (code==3)
+─────────────────────┴─────────────────────────────────────────────────────────
 
 (2,698 observations deleted)
 
 file data\merged_covid_usa_prepared_original_sample.dta saved
 
-─────────────────────┬──────────────────────────────────────────────────────
-───
+─────────────────────┬─────────────────────────────────────────────────────────
 merge specs          │
        matching type │ 1:1
   mv's on match vars │ none
   unmatched obs from │ both
-─────────────────────┼──────────────────────────────────────────────────────
-───
+─────────────────────┼─────────────────────────────────────────────────────────
   master        file │ data\merged_covid_usa_prepared_extended.dta
                  obs │   3085
                 vars │     22
           match vars │ fips  (key)
-  ───────────────────┼──────────────────────────────────────────────────────
-───
+  ───────────────────┼─────────────────────────────────────────────────────────
   using         file │ data\fips_sample.dta
                  obs │    157
                 vars │      1
           match vars │ fips  (key)
-─────────────────────┼──────────────────────────────────────────────────────
-───
+─────────────────────┼─────────────────────────────────────────────────────────
 result          file │ data\merged_covid_usa_prepared_extended.dta
                  obs │   3092
                 vars │     24  (including _merge)
-         ────────────┼──────────────────────────────────────────────────────
-───
-              _merge │   2935  obs only in master data                (code=
-
-                     │      7  obs only in using data                 (code=
-
-                     │    150  obs both in master and using data      (code=
-
-─────────────────────┴──────────────────────────────────────────────────────
-───
+         ────────────┼─────────────────────────────────────────────────────────
+              _merge │   2935  obs only in master data                (code==1)
+                     │      7  obs only in using data                 (code==2)
+                     │    150  obs both in master and using data      (code==3)
+─────────────────────┴─────────────────────────────────────────────────────────
 
 (2,942 observations deleted)
 
