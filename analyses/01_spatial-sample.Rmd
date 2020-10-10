@@ -53,14 +53,6 @@ counties_raw <- st_read("data-raw/Raw files/Spatial/cb_2018_us_county_20m/cb_201
 # View(st_drop_geometry(counties_raw))
 ```
 
-Excluding Hawaii: 
-
-```{r}
-counties_raw %>% 
-  filter(STATEFP == 15) %>% 
-  qtm(fill = "purple", borders = NULL)
-```
-
 Excluding Puerto Rico: 
 
 ```{r}
@@ -71,7 +63,6 @@ counties_raw %>%
 
 ```{r include=FALSE}
 counties <- counties_raw %>% 
-  filter(STATEFP != 15) %>% 
   filter(STATEFP < 60)
 
 # saving prep file for Stata
@@ -88,20 +79,28 @@ Final dataset used:
 qtm(counties, borders = "purple", fill = NULL)
 ```
 
-From these set of `r nrow(counties)` counties 5% sample would mean `r round(nrow(counties)*0.05)` polygons.
+From these set of `r nrow(counties)` counties in `r length(unique(counties$STATEFP))` states 5% sample would mean `r round(nrow(counties)*0.05)` polygons.
 
-Also - important to notice - there are two counties with no neighbours
+Also - important to notice - there are five counties with zero neighbours, Three in Hawaii:
 
 ```{r}
 counties %>% 
-  slice(2463) %>% 
+  slice(1127, 2610, 2673) %>% 
+  qtm(borders = "purple", text= "NAME", text.col = "purple", fill = NULL)
+```
+
+And two elsewhere:
+
+```{r}
+counties %>% 
+  slice(2465) %>% 
   qtm(borders = "purple", text= "NAME", text.col = "purple", fill = NULL)
 ```
 
 
 ```{r}
 counties %>% 
-  slice(2727) %>% 
+  slice(2732) %>% 
   qtm(borders = "purple", text= "NAME", text.col = "purple", fill = NULL)
 ```
 
@@ -203,12 +202,12 @@ connectUp <- function(polys, n){
 }
 
 temp <- counties %>% 
-  slice(-c(2463, 2727))
+  slice(-c(1127, 2465, 2610, 2673, 2732))
 
 connected <- connectUp(temp, round(nrow(temp)*0.05))
 
 temp[connected, ] %>% 
-  qtm(borders = "purple", fill = NULL)
+  qtm(borders = "darkorchid4", fill = "darkorchid1", alpha = .75)
 
 temp[connected, ] %>% 
   mutate(fips = as.integer(GEOID)) %>% 
@@ -220,7 +219,7 @@ temp[connected, ] %>%
   mutate(fips = as.integer(GEOID)) %>% 
   select(fips) %>% 
   st_drop_geometry() %>% 
-  st_write("data/fips_sample.shp", delete_dsn = TRUE)
+  write_csv("data/fips_sample.csv")
 ```
 
 **These are counties that will be used as input for 5% sample analyses!**
