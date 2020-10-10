@@ -1,0 +1,116 @@
+---
+title: "SCORE: Fielding-Miller et al. (2020) replication"
+subtitle: "Analysis of 5% sample"
+author: "Radoslaw Panczak"
+date: `s c(current_date)`
+---
+
+# Preps
+
+Read data 
+
+```s/
+	set seed 12345
+	
+	if "`c(username)'" == "panczak" {
+			
+	cd "C:\external\SCORE_Fielding-Miller_covid_R3pV\data"
+	
+	}
+	else {    
+		* settings for other users
+	}	
+	
+	u "merged_covid_usa_prepared_extended_sample.dta" , clear
+	* later change to 
+	* u "merged_covid_usa_prepared_extended.dta" , clear
+	
+	d
+```
+
+## Missing data 
+
+```s
+	mdesc
+```
+
+## States 
+
+```s
+	ta state, m
+```
+
+## Urban
+
+```s
+	ta nonurban, m
+```
+
+## Outcome 
+
+```s
+	univar deaths, dec(0)
+	* hist deaths, width(10)
+```
+
+# SAR models 
+
+Largely based on [Stata's SP manual](https://www.stata.com/manuals/sp.pdf).
+
+## Creating the Stata-format shapefile
+
+```s
+	spshape2dta cb_2018_us_county_20m_prep_sample.shp, replace
+	* later change to 
+	* spshape2dta cb_2018_us_county_20m_prep.shp, replace
+	
+	u cb_2018_us_county_20m_prep_sample, clear
+	d
+	spset fips, modify replace
+	spset, modify coordsys(latlong, miles)
+	sa, replace 
+```
+
+## Case selection
+
+In order to test focal hypothesis only nonurban counties are used.
+
+Counties with missing information on `farmwork` and `poverty` are also excluded since models will not run in situations in which counties exist in prepared spatial data but are excluded from regression (default Stata behaviour afaik).
+
+```s
+	u "merged_covid_usa_prepared_extended_sample.dta" , clear
+	* u "merged_covid_usa_prepared_extended.dta" , clear
+	keep if nonurban
+	
+	* stata deletes cases with missing obs
+	* then the dataset doesnt match the spatial matrix
+	* either fix missings or drop
+	drop if mi(farmwork)
+	drop if mi(poverty)
+```
+
+
+## Merging covid data with the Stata-format shapefile
+
+```s
+	merge 1:1 fips using cb_2018_us_county_20m_prep_sample
+	assert _merge != 1
+	keep if _merge == 3
+	drop _merge
+	
+	* grmap deaths
+```
+
+## Fitting model with a spatial lag of the dependent variable
+
+decision needed between `gs2sls` and `ml` options!
+
+```s
+	spmatrix create contiguity W, replace 
+
+	spregress deaths nonenglish farmwork uninsured poverty older pop_dens time_case1 time_case100, ml dvarlag(W)
+	
+	spregress deaths nonenglish farmwork uninsured poverty older pop_dens time_case1 time_case100, gs2sls dvarlag(W)
+	
+	* estat impact
+```

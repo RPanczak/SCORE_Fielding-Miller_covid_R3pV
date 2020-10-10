@@ -21,9 +21,9 @@ Read data
 		* settings for other users
 	}	
 	
-	u "merged_covid_usa_prepared_extended_sample.dta" , clear
+	u "merged_covid_usa_prepared_original_sample.dta" , clear
 	* later change to 
-	* u "merged_covid_usa_prepared_extended.dta" , clear
+	* u "merged_covid_usa_prepared_original.dta" , clear
 	
 	d
 ```
@@ -78,7 +78,8 @@ In order to test focal hypothesis only nonurban counties are used.
 Counties with missing information on `farmwork` and `poverty` are also excluded since models will not run in situations in which counties exist in prepared spatial data but are excluded from regression (default Stata behaviour afaik).
 
 ```s
-	u "merged_covid_usa_prepared_extended_sample.dta" , clear
+	u "merged_covid_usa_prepared_original_sample.dta" , clear
+	*u "merged_covid_usa_prepared_original.dta" , clear
 	keep if nonurban
 	
 	* stata deletes cases with missing obs
@@ -99,27 +100,14 @@ Counties with missing information on `farmwork` and `poverty` are also excluded 
 	
 	* grmap deaths
 ```
-## Testing OLS
-
-```s
-	reg deaths uninsured time_case1 time_case100
-	
-	spmatrix create contiguity W, replace 
-	
-	estat moran, errorlag(W)
-	
-	* will go bananas with missing values!
-	reg deaths nonenglish farmwork uninsured poverty older pop_dens time_case1 time_case100
-	
-	estat moran, errorlag(W)
-
-```
 
 ## Fitting model with a spatial lag of the dependent variable
 
 decision needed between `gs2sls` and `ml` options!
 
 ```s
+	spmatrix create contiguity W, replace 
+
 	spregress deaths nonenglish farmwork uninsured poverty older pop_dens time_case1 time_case100, ml dvarlag(W)
 	
 	spregress deaths nonenglish farmwork uninsured poverty older pop_dens time_case1 time_case100, gs2sls dvarlag(W)
