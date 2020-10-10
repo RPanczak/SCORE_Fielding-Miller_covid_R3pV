@@ -37,7 +37,7 @@ p_load(osfr, readr, dplyr)
 
 # Purpose
 
-Simple script top automate data download anu upload to osf.
+Simple script to automate data download and upload to osf.
 
 # Data download
 
@@ -88,7 +88,7 @@ Lookup table of FIPS codes are from [here](https://www.census.gov/geographies/re
 
 ```{r osf-down-sp, eval=FALSE, include=FALSE}
 
-dir.create(file.path("data-raw/Spatial"), showWarnings = FALSE)
+dir.create(file.path("data-raw/Raw files/Spatial"), showWarnings = FALSE)
 
 project %>%
   osf_ls_nodes() %>% 
