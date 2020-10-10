@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+<style>
+/* CSS for Markstat 2.0 using Pandoc 2.0 */
+body{padding:14px 28px;}
+body, table {font-family: Helvetica, Arial, Sans-serif; font-size: 14px;}
+h1, h2, h3, h4 {font-weight: normal; color: #3366cc}
+h1 {font-size: 200%;}
+h2 {font-size: 150%;}
+h3 {font-size: 120%;}
+h4 {font-size: 100%; font-weight:bold}
+img.center {display:block; margin-left:auto; margin-right:auto}
+.small{font-size:8pt;}
+a {color: black;}
+a:visited {color: #808080;}
+a.plain {text-decoration:none;}
+a.plain:hover {text-decoration:underline;}
+.em {font-weight:bold;}
+pre, code {font-family: "lucida console", monospace;}
+pre.stata {font-size:13px; line-height:13px;}
+pre {padding:8px; border:1px solid #c0c0c0; border-radius:8px; background-color:#fdfdfd;}
+code {color:#3366cc; background-color:#fafafa;}
+pre code { color:black; background-color:white}
+/* Added for Pandoc */
+figure > img, div.figure > img {display:block; margin:auto}
+figcaption, p.caption {text-align:center; font-weight:bold; color:#3366cc;}
+h1.title {text-align:center; margin-bottom:0}
+p.author, h2.author {font-style:italic; text-align:center;margin-top:4px;margin-bottom:0}
+p.date, h3.date {text-align:center;margin-top:4px; margin-bottom:0}
+/* Tables*/
+table { margin:auto; border-collapse:collapse; }
+table caption { margin-bottom:1ex;}
+th, td { padding:4px 6px;}
+thead tr:first-child th {border-top:1px solid black; padding-top:6px}
+thead tr:last-child  th {padding-bottom:6px}
+tbody tr:first-child td {border-top:1px solid black; padding-top:6px}
+tbody tr:last-child  td {padding-bottom:6px;}
+table tbody:last-child tr:last-child td {border-bottom:1px solid black;}
+</style>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>02_data-preparation</title>
+  <style>
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<h1 id="input">Input</h1>
+<p>Raw data received from data finder as a starting point:</p>
+<pre class='stata'>C:\external\SCORE_Fielding-Miller_covid_R3pV
+
+date was long now str8
+
+(57 missing values generated)
+
+Contains data from data-raw\Script\merged_covid_usa_v2.dta
+  obs:       340,819                          
+ vars:            16                          4 Oct 2020 20:00
+────────────────────────────────────────────────────────────────────────────
+              storage   display    value
+variable name   type    format     label      variable label
+────────────────────────────────────────────────────────────────────────────
+date            str8    %9s                   
+date_proper     float   %td..                 
+county          str33   %33s                  
+state           str24   %24s                  
+fips            long    %12.0g                
+cases           long    %8.0g                 Cases
+deaths          int     %8.0g                 
+S1602_C01_001E  double  %10.0g                
+S2701_C05_011E  double  %10.0g                
+S2701_C05_012E  double  %10.0g                
+S1701_C03_001E  double  %10.0g                
+DP05_0001E      long    %10.0g                
+DP05_0024PE     double  %10.0g                
+LABOR           long    %10.0g                Value
+A00002_002      float   %9.0g                 Population Density (Per Sq.
+                                                Mile)
+sip_effect      float   %9.0g                 
+────────────────────────────────────────────────────────────────────────────
+Sorted by: fips
+     Note: Dataset has changed since last saved.
+</pre>
+<h1 id="missing-data">Missing data</h1>
+<p>Cleaning up observations with missing geography</p>
+<pre class='stata'>. drop if county == "Unknown"
+(3,189 observations deleted)
+</pre>
+<pre class='stata'>. mdesc
+
+    Variable    │     Missing          Total     Percent Missing
+────────────────┼───────────────────────────────────────────────
+           date │           0        337,630           0.00
+    date_proper │          57        337,630           0.02
+         county │          57        337,630           0.02
+          state │          57        337,630           0.02
+           fips │         279        337,630           0.08
+          cases │          57        337,630           0.02
+         deaths │          57        337,630           0.02
+   S1602_C~001E │         399        337,630           0.12
+   S2701_C~011E │         287        337,630           0.09
+   S2701_C~012E │         287        337,630           0.09
+   S1701_C~001E │         401        337,630           0.12
+     DP05_0001E │         287        337,630           0.09
+    DP05_0024PE │         287        337,630           0.09
+          LABOR │      17,341        337,630           5.14
+     A00002_002 │         287        337,630           0.09
+     sip_effect │           0        337,630           0.00
+────────────────┼───────────────────────────────────────────────
+</pre>
+<h2 id="misisng-fips-codes.">Misisng <code>fips</code> codes.</h2>
+<pre class='stata'>. preserve
+
+. keep if mi(fips)
+(337,351 observations deleted)
+
+. fre county
+
+county
+──────────────────────┬────────────────────────────────────────────
+                      │      Freq.    Percent      Valid       Cum.
+──────────────────────┼────────────────────────────────────────────
+Valid   Joplin        │         22       7.89       7.89       7.89
+        Kansas City   │        119      42.65      42.65      50.54
+        New York City │        138      49.46      49.46     100.00
+        Total         │        279     100.00     100.00           
+──────────────────────┴────────────────────────────────────────────
+
+. * fre state
+. restore
+</pre>
+<h2 id="not-linked-to-list-of-cases-from-nyt">Not linked to list of cases from NYT</h2>
+<pre class='stata'>. preserve
+
+. keep if mi(date_proper)
+(337,573 observations deleted)
+
+. * fre fips
+. distinct fips
+
+       │        Observations
+       │      total   distinct
+───────┼──────────────────────
+  fips │         57         57
+
+. restore
+</pre>
+<p>Among them NY boroughs?</p>
+<pre class='stata'>. count if inlist(fips, 36005, 36047, 36061, 36081, 36085)
+  5
+</pre>
+<h1 id="exclusions">Exclusions</h1>
+<p>Excluding cases where no fips code is available and no link to deaths data.</p>
+<pre class='stata'>. drop if mi(fips)
+(279 observations deleted)
+
+. drop if mi(date_proper)
+(57 observations deleted)
+</pre>
+<p>Authors specifythat analysis focuses on 50 states - that <strong>most likely</strong> means exclusions of <code>Northern Mariana Islands</code> and <code>Puerto Rico</code>. All counties from there were excluded.</p>
+<p>American Samoa AS 60 Guam GU 66 Northern Mariana Islands MP 69 Puerto Rico PR 72 Virgin Islands VI 78</p>
+<pre class='stata'>. drop if state == "Northern Mariana Islands"
+(6 observations deleted)
+
+. drop if state == "Puerto Rico"
+(5,657 observations deleted)
+
+. * drop if state == "Hawaii"
+.     
+. * first two could be also achieved with 
+. * drop if fips >= 60000
+. * su fips
+</pre>
+<h1 id="still-some-missings">Still some missings</h1>
+<p>Examples from the date of analyses</p>
+<pre class='stata'>. * ta county if mi(S1602_C01_001E) // &amp; date == "2020-04-26"
+. * ta county if mi(S1701_C03_001E) // &amp; date == "2020-04-26"
+. * ta county if mi(LABOR)             // &amp; date == "2020-04-26"
+. distinct county if mi(S1602_C01_001E) &amp; date_proper == date("2020-04-26", 
+> "YMD")
+
+        │        Observations
+        │      total   distinct
+────────┼──────────────────────
+ county │          1          1
+
+. distinct county if mi(S1701_C03_001E) &amp; date_proper == date("2020-04-26", 
+> "YMD")
+
+        │        Observations
+        │      total   distinct
+────────┼──────────────────────
+ county │          1          1
+
+. distinct county if mi(LABOR)             &amp; date_proper == date("2020-04-26
+> ", "YMD")
+
+        │        Observations
+        │      total   distinct
+────────┼──────────────────────
+ county │         92         92
+
+.     
+. fre state if mi(LABOR)             &amp; date_proper == date("2020-04-26", "YM
+> D")
+
+state
+─────────────────────────────┬────────────────────────────────────────────
+                             │      Freq.    Percent      Valid       Cum.
+─────────────────────────────┼────────────────────────────────────────────
+Valid   Alaska               │         14      15.22      15.22      15.22
+        Colorado             │          3       3.26       3.26      18.48
+        District of Columbia │          1       1.09       1.09      19.57
+        Florida              │          3       3.26       3.26      22.83
+        Georgia              │          9       9.78       9.78      32.61
+        Kentucky             │          3       3.26       3.26      35.87
+        Louisiana            │          3       3.26       3.26      39.13
+        Maryland             │          1       1.09       1.09      40.22
+        Michigan             │          3       3.26       3.26      43.48
+        Missouri             │          1       1.09       1.09      44.57
+        Nevada               │          2       2.17       2.17      46.74
+        New Jersey           │          3       3.26       3.26      50.00
+        North Carolina       │          1       1.09       1.09      51.09
+        Pennsylvania         │          2       2.17       2.17      53.26
+        Texas                │          2       2.17       2.17      55.43
+        Virginia             │         34      36.96      36.96      92.39
+        West Virginia        │          5       5.43       5.43      97.83
+        Wisconsin            │          2       2.17       2.17     100.00
+        Total                │         92     100.00     100.00           
+─────────────────────────────┴────────────────────────────────────────────
+</pre>
+<p><code>LABOR</code> particularly affected.</p>
+<p>No reasonable response from data finder.</p>
+<p>These cases will be excluded from the analyses since this is default Stata’s behaviour and no description on handling missingness was provided in paper.</p>
+<h1 id="five-boroughs-of-new-york-city">Five boroughs of New York City</h1>
+<p>Five of New York’s counties were aggregated for counting cases/deaths in the paper. Most likely following data format from NYT.</p>
+<p>Counties/boroughs and their codes are:</p>
+<ul>
+<li>The Bronx is Bronx County (FIPS 36005)</li>
+<li>Brooklyn is Kings County (FIPS 36047)</li>
+<li>Manhattan is New York County (FIPS 36061)</li>
+<li>Queens is Queens County (FIPS 36081)</li>
+<li>Staten Island is Richmond County (FIPS 36085)</li>
+</ul>
+<p><strong>Data was excluded at earlier stage since no info on cases was found for them and no fix for <code>fips</code> code was made.</strong></p>
+<p><em>Explanation needed from data finder here?</em></p>
+
+<p>It might be lucky that we only test the rural counties?</p>
+<p>Not sure what the impact on spatial set up is? Were these counties aggregated in shape files to form one NY?</p>
+<h1 id="regression-variables">Regression variables</h1>
+<h2 id="nonenglish-speaking-hh">% nonenglish speaking hh</h2>
+<p>Already in the dataset</p>
+<pre class='stata'>. ren S1602_C01_001E nonenglish
+
+. order nonenglish, a(deaths)
+
+. la var nonenglish "% nonenglish speaking hh"
+
+. univar nonenglish, d(1)
+                                        ────────────── Quantiles ───────────
+> ───
+Variable       n     Mean     S.D.      Min      .25      Mdn      .75      
+> Max
+────────────────────────────────────────────────────────────────────────────
+> ───
+nonenglish  331517      1.9      3.0      0.0      0.3      0.9      2.1    
+>  38.6
+────────────────────────────────────────────────────────────────────────────
+> ───
+</pre>
+<h2 id="engaged-in-farmwork">% engaged in farmwork</h2>
+<p>Already in the dataset</p>
+<pre class='stata'>. gen farmwork = (LABOR / DP05_0001E) * 100
+(11,389 missing values generated)
+
+. order farmwork, a(nonenglish)
+
+. la var farmwork "% engaged in farmwork"
+
+. univar farmwork, d(1)
+                                        ────────────── Quantiles ───────────
+> ───
+Variable       n     Mean     S.D.      Min      .25      Mdn      .75      
+> Max
+────────────────────────────────────────────────────────────────────────────
+> ───
+farmwork  320242      2.6      3.5      0.0      0.6      1.4      3.1     4
+> 5.9
+────────────────────────────────────────────────────────────────────────────
+> ───
+</pre>
+<h2 id="uninsured-under-65">% uninsured under 65</h2>
+<p>Already in the dataset, but has to be constructed from two vars</p>
+<pre class='stata'>. gen uninsured = S2701_C05_011E + S2701_C05_012E
+
+. order uninsured, a(farmwork)
+
+. la var uninsured "% uninsured under 65"
+
+. univar uninsured, d(1)
+                                        ────────────── Quantiles ───────────
+> ───
+Variable       n     Mean     S.D.      Min      .25      Mdn      .75      
+> Max
+────────────────────────────────────────────────────────────────────────────
+> ───
+uninsured  331631     20.6     10.6      2.7     12.7     18.5     25.8     
+> 90.0
+────────────────────────────────────────────────────────────────────────────
+> ───
+</pre>
+<h2 id="below-poverty-line">% below poverty line</h2>
+<p>Already in the dataset</p>
+<pre class='stata'>. ren S1701_C03_001E poverty
+
+. order poverty, a(uninsured)
+
+. la var poverty "% below poverty line"
+
+. univar poverty, d(1)
+                                        ────────────── Quantiles ───────────
+> ───
+Variable       n     Mean     S.D.      Min      .25      Mdn      .75      
+> Max
+────────────────────────────────────────────────────────────────────────────
+> ───
+ poverty  331517     15.6      6.4      2.3     11.1     14.8     19.1     5
+> 5.1
+────────────────────────────────────────────────────────────────────────────
+> ───
+</pre>
+<h2 id="aged-65-and-above">% aged 65 and above</h2>
+<p>Already in the dataset</p>
+<pre class='stata'>. ren DP05_0024PE older
+
+. order older, a(poverty)
+
+. la var older "% aged 65 and above"
+
+. univar older, d(1)
+                                        ────────────── Quantiles ───────────
+> ───
+Variable       n     Mean     S.D.      Min      .25      Mdn      .75      
+> Max
+────────────────────────────────────────────────────────────────────────────
+> ───
+   older  331631     17.6      4.4      3.7     14.8     17.3     19.9     5
+> 4.2
+────────────────────────────────────────────────────────────────────────────
+> ───
+</pre>
+<h2 id="pop-density">Pop density</h2>
+<p>Already in the dataset</p>
+<pre class='stata'>. ren A00002_002 pop_dens
+
+. order pop_dens, a(older)
+
+. la var pop_dens "Pop density"
+
+. univar pop_dens, d(1)
+                                        ────────────── Quantiles ───────────
+> ───
+Variable       n     Mean     S.D.      Min      .25      Mdn      .75      
+> Max
+────────────────────────────────────────────────────────────────────────────
+> ───
+pop_dens  331631    255.9    909.6      0.0     22.4     52.6    144.4  1856
+> 5.5
+────────────────────────────────────────────────────────────────────────────
+> ───
+</pre>
+<h2 id="non-urban-counties">Non urban counties</h2>
+<p>Defined from pop density</p>
+<pre class='stata'>. gen nonurban = pop_dens &lt;= 1000
+
+. order nonurban, a(date_proper)
+
+. la var nonurban "Non-urban counties flag"
+
+. la de nonurban 0 "urban" 1 "non-urban"
+
+. la val nonurban nonurban
+
+. ta nonurban if date_proper == date("2020-04-26", "YMD")
+
+  Non-urban │
+   counties │
+       flag │      Freq.     Percent        Cum.
+────────────┼───────────────────────────────────
+      urban │        142        5.09        5.09
+  non-urban │      2,649       94.91      100.00
+────────────┼───────────────────────────────────
+      Total │      2,791      100.00
+</pre>
+<h2 id="no-of-days-since-1st-case">No of days since 1st case</h2>
+<p>There are no records for states with 0 cases so first date in the database for each county is the date needed.</p>
+<pre class='stata'>. sort fips date_proper, stable    
+
+. by fips: egen date_case1 = min(date_proper)
+
+. format date_case1 %tdCCYY-NN-DD
+
+. gen time_case1 = date_proper - date_case1
+
+. *drop date_case1
+. la var date_case1 "Date of case 1"
+
+. la var time_case1 "Days since case 1 in county"
+</pre>
+<h2 id="no-of-days-between-100th-case-and-shelter-in-place">No of days between 100th case and shelter in place</h2>
+<p>Dates of SIP for each state were provided by data finder.</p>
+<p><code>South Dakota</code> is missing however?</p>
+<p>Five states had it imputed to 0 as specified by paper.</p>
+<p>There was one incosistency between paper and data finder - using values from preprint (<code>Wyoming</code>).</p>
+<pre class='stata'>                   state │      Freq.     Percent        Cum.
+─────────────────────────┼───────────────────────────────────
+                Arkansas │      8,297       21.55       21.55
+                    Iowa │     10,393       27.00       48.55
+                Nebraska │      7,193       18.69       67.24
+            North Dakota │      4,495       11.68       78.91
+            South Dakota │      5,624       14.61       93.52
+                 Wyoming │      2,493        6.48      100.00
+─────────────────────────┼───────────────────────────────────
+                   Total │     38,495      100.00
+</pre>
+<pre class='stata'>. gen temp = date_proper if cases >= 100
+(226,596 missing values generated)
+
+. sort fips date_proper, stable    
+
+. by fips: egen date_case100 = min(temp)
+(131,942 missing values generated)
+
+. drop temp
+
+. format date_case100 %tdCCYY-NN-DD
+
+.     
+. gen time_case100 = sip_effect - date_case100
+(145,316 missing values generated)
+
+. *drop date_case100
+.     
+. * this states are 0 as per preprint specs 
+. replace time_case100 = 0 if inlist(state, "Arkansas", "Iowa", "Nebraska", 
+> "North Dakota", "Wyoming")
+(32,871 real changes made)
+
+.     
+. la var date_case100 "Date of case 100"
+
+. la var time_case100 "Days between case 100 in county and SIP in state"
+
+.     
+</pre>
+<p>There is a problem with generating this variable for counties that did not reach 100 cases by the time analyses were conducted.</p>
+<p>Preprint is silent on what was done in such cases. The only two reasonable strategies would be to run analyses without counties with missing information (which would result in drastic sample size reduction) or impute it to 0. The latter has been applied in this case.</p>
+<pre class='stata'>. distinct fips if mi(time_case100) &amp; date_proper == date("2020-04-26", "YMD
+> ")
+
+       │        Observations
+       │      total   distinct
+───────┼──────────────────────
+  fips │        948        948
+
+.     
+. replace time_case100 = 0 if mi(time_case100) &amp; mi(date_case100)
+(111,628 real changes made)
+
+.     
+. fre state if mi(time_case100)
+
+state
+─────────────────────┬────────────────────────────────────────────
+                     │      Freq.    Percent      Valid       Cum.
+─────────────────────┼────────────────────────────────────────────
+Valid   South Dakota │        817     100.00     100.00     100.00
+─────────────────────┴────────────────────────────────────────────
+</pre>
+<h1 id="outcome">Outcome</h1>
+<p>Deaths reported by NY Times</p>
+<pre class='stata'>. la var deaths "Deaths"
+
+. univar deaths, d(0)
+                                        ────────────── Quantiles ───────────
+> ───
+Variable       n     Mean     S.D.      Min      .25      Mdn      .75      
+> Max
+────────────────────────────────────────────────────────────────────────────
+> ───
+  deaths  331631       22      137        0        0        1        5     4
+> 750
+────────────────────────────────────────────────────────────────────────────
+> ───
+
+. univar deaths, d(0) by(nonurban)
+
+-> nonurban=urban 
+                                        ────────────── Quantiles ───────────
+> ───
+Variable       n     Mean     S.D.      Min      .25      Mdn      .75      
+> Max
+────────────────────────────────────────────────────────────────────────────
+> ───
+  deaths   18249      255      508        0        3       43      262     4
+> 750
+────────────────────────────────────────────────────────────────────────────
+> ───
+
+-> nonurban=non-urban 
+                                        ────────────── Quantiles ───────────
+> ───
+Variable       n     Mean     S.D.      Min      .25      Mdn      .75      
+> Max
+────────────────────────────────────────────────────────────────────────────
+> ───
+  deaths  313382        8       37        0        0        1        4     1
+> 311
+────────────────────────────────────────────────────────────────────────────
+> ───
+</pre>
+<h1 id="final-dataset-for-analysis">Final dataset for analysis</h1>
+<p>SCORE recomendation regarding time frame of the data:</p>
+<blockquote>
+<p>For this replication, SCORE recommends three analyses be performed: one analysis that only uses the dates that have occurred since the original analysis, one analysis that combines all available dates, a third analysis that only uses dates that were used in the original analysis</p>
+</blockquote>
+<p>The first and second analyses are the same in such cases - they both would use data with the latest available date.</p>
+<p>Two datasets are then prepared around the time point of preprint analysis which is <code>2020-04-26</code>. One up to this point (inclusive):</p>
+<pre class='stata'>(328,840 observations deleted)
+
+nonurban -- Non-urban counties flag
+────────────────────┬────────────────────────────────────────────
+                    │      Freq.    Percent      Valid       Cum.
+────────────────────┼────────────────────────────────────────────
+Valid   0 urban     │        142       5.09       5.09       5.09
+        1 non-urban │       2649      94.91      94.91     100.00
+        Total       │       2791     100.00     100.00           
+────────────────────┴────────────────────────────────────────────
+
+file data\merged_covid_usa_prepared_original.dta saved
+</pre>
+<p>… and one till the data is available - <code>2020-07-16</code>.</p>
+<pre class='stata'>(328,546 observations deleted)
+
+nonurban -- Non-urban counties flag
+────────────────────┬────────────────────────────────────────────
+                    │      Freq.    Percent      Valid       Cum.
+────────────────────┼────────────────────────────────────────────
+Valid   0 urban     │        143       4.64       4.64       4.64
+        1 non-urban │       2942      95.36      95.36     100.00
+        Total       │       3085     100.00     100.00           
+────────────────────┴────────────────────────────────────────────
+
+file data\merged_covid_usa_prepared_extended.dta saved
+</pre>
+<h1 id="sample-of-5">Sample of 5%</h1>
+<p>Spatially contiguous. Prepared with <code>01_spatial-sample.Rmd</code> script.</p>
+<pre class='stata'>(1 var, 157 obs)
+
+file data\fips_sample.dta saved
+
+─────────────────────┬──────────────────────────────────────────────────────
+───
+merge specs          │
+       matching type │ 1:1
+  mv's on match vars │ none
+  unmatched obs from │ both
+─────────────────────┼──────────────────────────────────────────────────────
+───
+  master        file │ data\merged_covid_usa_prepared_original.dta
+                 obs │   2791
+                vars │     22
+          match vars │ fips  (key)
+  ───────────────────┼──────────────────────────────────────────────────────
+───
+  using         file │ data\fips_sample.dta
+                 obs │    157
+                vars │      1
+          match vars │ fips  (key)
+─────────────────────┼──────────────────────────────────────────────────────
+───
+result          file │ data\merged_covid_usa_prepared_original.dta
+                 obs │   2823
+                vars │     24  (including _merge)
+         ────────────┼──────────────────────────────────────────────────────
+───
+              _merge │   2666  obs only in master data                (code=
+
+                     │     32  obs only in using data                 (code=
+
+                     │    125  obs both in master and using data      (code=
+
+─────────────────────┴──────────────────────────────────────────────────────
+───
+
+(2,698 observations deleted)
+
+file data\merged_covid_usa_prepared_original_sample.dta saved
+
+─────────────────────┬──────────────────────────────────────────────────────
+───
+merge specs          │
+       matching type │ 1:1
+  mv's on match vars │ none
+  unmatched obs from │ both
+─────────────────────┼──────────────────────────────────────────────────────
+───
+  master        file │ data\merged_covid_usa_prepared_extended.dta
+                 obs │   3085
+                vars │     22
+          match vars │ fips  (key)
+  ───────────────────┼──────────────────────────────────────────────────────
+───
+  using         file │ data\fips_sample.dta
+                 obs │    157
+                vars │      1
+          match vars │ fips  (key)
+─────────────────────┼──────────────────────────────────────────────────────
+───
+result          file │ data\merged_covid_usa_prepared_extended.dta
+                 obs │   3092
+                vars │     24  (including _merge)
+         ────────────┼──────────────────────────────────────────────────────
+───
+              _merge │   2935  obs only in master data                (code=
+
+                     │      7  obs only in using data                 (code=
+
+                     │    150  obs both in master and using data      (code=
+
+─────────────────────┴──────────────────────────────────────────────────────
+───
+
+(2,942 observations deleted)
+
+file data\merged_covid_usa_prepared_extended_sample.dta saved
+
+file data\fips_original.csv saved
+
+file data\fips_extended.csv saved
+
+(2,971 observations deleted)
+
+file data\fips_missing_farmwork.csv saved
+</pre>
+<h1 id="appendix">Appendix</h1>
+<h2 id="list-of-codes-to-check-spatial-coverage">List of codes to check spatial coverage</h2>
+<pre class='stata'>file data\fips_original.csv saved
+
+file data\fips_extended.csv saved
+</pre>
+<h2 id="tracking-missing-labour">Tracking missing LABOUR</h2>
+<pre class='stata'>(2,971 observations deleted)
+
+file data\fips_missing_farmwork.csv saved
+</pre>
+</body>
+</html>

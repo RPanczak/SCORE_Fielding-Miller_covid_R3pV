@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang xml:lang>
+<head>
+<style>
+/* CSS for Markstat 2.0 using Pandoc 2.0 */
+body{padding:14px 28px;}
+body, table {font-family: Helvetica, Arial, Sans-serif; font-size: 14px;}
+h1, h2, h3, h4 {font-weight: normal; color: #3366cc}
+h1 {font-size: 200%;}
+h2 {font-size: 150%;}
+h3 {font-size: 120%;}
+h4 {font-size: 100%; font-weight:bold}
+img.center {display:block; margin-left:auto; margin-right:auto}
+.small{font-size:8pt;}
+a {color: black;}
+a:visited {color: #808080;}
+a.plain {text-decoration:none;}
+a.plain:hover {text-decoration:underline;}
+.em {font-weight:bold;}
+pre, code {font-family: "lucida console", monospace;}
+pre.stata {font-size:13px; line-height:13px;}
+pre {padding:8px; border:1px solid #c0c0c0; border-radius:8px; background-color:#fdfdfd;}
+code {color:#3366cc; background-color:#fafafa;}
+pre code { color:black; background-color:white}
+/* Added for Pandoc */
+figure > img, div.figure > img {display:block; margin:auto}
+figcaption, p.caption {text-align:center; font-weight:bold; color:#3366cc;}
+h1.title {text-align:center; margin-bottom:0}
+p.author, h2.author {font-style:italic; text-align:center;margin-top:4px;margin-bottom:0}
+p.date, h3.date {text-align:center;margin-top:4px; margin-bottom:0}
+/* Tables*/
+table { margin:auto; border-collapse:collapse; }
+table caption { margin-bottom:1ex;}
+th, td { padding:4px 6px;}
+thead tr:first-child th {border-top:1px solid black; padding-top:6px}
+thead tr:last-child  th {padding-bottom:6px}
+tbody tr:first-child td {border-top:1px solid black; padding-top:6px}
+tbody tr:last-child  td {padding-bottom:6px;}
+table tbody:last-child tr:last-child td {border-bottom:1px solid black;}
+</style>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>04_analysys-5perc-sample-original</title>
+  <style>
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<table>
+<tbody>
+<tr class="odd">
+<td>title: “SCORE: Fielding-Miller et al. (2020) replication”</td>
+</tr>
+<tr class="even">
+<td>subtitle: “Analysis of 5% sample”</td>
+</tr>
+<tr class="odd">
+<td>author: “Radoslaw Panczak”</td>
+</tr>
+<tr class="even">
+<td>date: 10 Oct 2020</td>
+</tr>
+</tbody>
+</table>
+<h1 id="preps">Preps</h1>
+<p>Read data</p>
+<pre class='stata'>C:\external\SCORE_Fielding-Miller_covid_R3pV\data
+
+Contains data from merged_covid_usa_prepared_original_sample.dta
+  obs:           125                          
+ vars:            22                          10 Oct 2020 19:42
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+              storage   display    value
+variable name   type    format     label      variable label
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+date            str8    %9s                   
+nonurban        byte    %9.0g      nonurban   Non-urban counties flag
+county          str33   %33s                  
+state           str20   %20s                  
+fips            long    %12.0g                
+cases           long    %8.0g                 Cases
+deaths          int     %8.0g                 Deaths
+nonenglish      double  %10.0g                % nonenglish speaking hh
+farmwork        float   %9.0g                 % engaged in farmwork
+uninsured       float   %9.0g                 % uninsured under 65
+poverty         double  %10.0g                % below poverty line
+older           double  %10.0g                % aged 65 and above
+pop_dens        float   %9.0g                 Pop density
+S2701_C05_011E  double  %10.0g                
+S2701_C05_012E  double  %10.0g                
+DP05_0001E      long    %10.0g                
+LABOR           long    %10.0g                Value
+date_case1      int     %td..                 Date of case 1
+time_case1      byte    %9.0g                 Days since case 1 in county
+sip_effect      int     %td..                 SIP effect start date
+date_case100    int     %td..                 Date of case 100
+time_case100    byte    %9.0g                 Days between case 100 in county and SIP in state
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+Sorted by: 
+</pre>
+<h2 id="missing-data">Missing data</h2>
+<pre class='stata'>. mdesc
+
+    Variable    │     Missing          Total     Percent Missing
+────────────────┼───────────────────────────────────────────────
+           date │           0            125           0.00
+       nonurban │           0            125           0.00
+         county │           0            125           0.00
+          state │           0            125           0.00
+           fips │           0            125           0.00
+          cases │           0            125           0.00
+         deaths │           0            125           0.00
+     nonenglish │           0            125           0.00
+       farmwork │           3            125           2.40
+      uninsured │           0            125           0.00
+        poverty │           1            125           0.80
+          older │           0            125           0.00
+       pop_dens │           0            125           0.00
+   S2701_C~011E │           0            125           0.00
+   S2701_C~012E │           0            125           0.00
+     DP05_0001E │           0            125           0.00
+          LABOR │           3            125           2.40
+     date_case1 │           0            125           0.00
+     time_case1 │           0            125           0.00
+     sip_effect │           5            125           4.00
+   date_case100 │          64            125          51.20
+   time_case100 │           0            125           0.00
+────────────────┼───────────────────────────────────────────────
+</pre>
+<h2 id="states">States</h2>
+<pre class='stata'>. ta state, m
+
+               state │      Freq.     Percent        Cum.
+─────────────────────┼───────────────────────────────────
+             Arizona │         12        9.60        9.60
+          California │          6        4.80       14.40
+            Colorado │         52       41.60       56.00
+              Kansas │         11        8.80       64.80
+            Nebraska │          3        2.40       67.20
+          New Mexico │         20       16.00       83.20
+            Oklahoma │          3        2.40       85.60
+               Texas │          5        4.00       89.60
+                Utah │         11        8.80       98.40
+             Wyoming │          2        1.60      100.00
+─────────────────────┼───────────────────────────────────
+               Total │        125      100.00
+</pre>
+<h2 id="urban">Urban</h2>
+<pre class='stata'>. ta nonurban, m
+
+  Non-urban │
+   counties │
+       flag │      Freq.     Percent        Cum.
+────────────┼───────────────────────────────────
+      urban │          4        3.20        3.20
+  non-urban │        121       96.80      100.00
+────────────┼───────────────────────────────────
+      Total │        125      100.00
+</pre>
+<h2 id="outcome">Outcome</h2>
+<pre class='stata'>. univar deaths, dec(0)
+                                        ────────────── Quantiles ──────────────
+Variable       n     Mean     S.D.      Min      .25      Mdn      .75      Max
+───────────────────────────────────────────────────────────────────────────────
+  deaths     125       11       26        0        0        0        4      132
+───────────────────────────────────────────────────────────────────────────────
+
+. * hist deaths, width(10)
+</pre>
+<h1 id="sar-models">SAR models</h1>
+<p>Largely based on <a href="https://www.stata.com/manuals/sp.pdf">Stata’s SP manual</a>.</p>
+<h2 id="creating-the-stata-format-shapefile">Creating the Stata-format shapefile</h2>
+<pre class='stata'>. spshape2dta cb_2018_us_county_20m_prep_sample.shp, replace
+  (importing .shp file)
+  (importing .dbf file)
+  (creating _ID spatial-unit id)
+  (creating _CX coordinate)
+  (creating _CY coordinate)
+
+  file cb_2018_us_county_20m_prep_sample_shp.dta created
+  file cb_2018_us_county_20m_prep_sample.dta     created
+
+. * later change to 
+. * spshape2dta cb_2018_us_county_20m_prep.shp, replace
+.     
+. u cb_2018_us_county_20m_prep_sample, clear
+
+. d
+
+Contains data from cb_2018_us_county_20m_prep_sample.dta
+  obs:           157                          
+ vars:             5                          10 Oct 2020 20:05
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+              storage   display    value
+variable name   type    format     label      variable label
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+_ID             int     %12.0g                Spatial-unit ID
+_CX             double  %10.0g                x-coordinate of area centroid
+_CY             double  %10.0g                y-coordinate of area centroid
+fips            long    %9.0f                 fips
+state_code      str2    %9s                   state_code
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+Sorted by: _ID
+
+. spset fips, modify replace
+  (_shp.dta file saved)
+  (data in memory saved)
+  Sp dataset cb_2018_us_county_20m_prep_sample.dta
+                data:  cross sectional
+     spatial-unit id:  _ID (equal to fips)
+         coordinates:  _CX, _CY (planar)
+    linked shapefile:  cb_2018_us_county_20m_prep_sample_shp.dta
+
+. spset, modify coordsys(latlong, miles)
+  Sp dataset cb_2018_us_county_20m_prep_sample.dta
+                data:  cross sectional
+     spatial-unit id:  _ID (equal to fips)
+         coordinates:  _CY, _CX (latitude-and-longitude, miles)
+    linked shapefile:  cb_2018_us_county_20m_prep_sample_shp.dta
+
+
+. sa, replace 
+file cb_2018_us_county_20m_prep_sample.dta saved
+</pre>
+<h2 id="case-selection">Case selection</h2>
+<p>In order to test focal hypothesis only nonurban counties are used.</p>
+<p>Counties with missing information on <code>farmwork</code> and <code>poverty</code> are also excluded since models will not run in situations in which counties exist in prepared spatial data but are excluded from regression (default Stata behaviour afaik).</p>
+<pre class='stata'>. u "merged_covid_usa_prepared_original_sample.dta" , clear
+
+. *u "merged_covid_usa_prepared_original.dta" , clear
+. keep if nonurban
+(4 observations deleted)
+
+.     
+. * stata deletes cases with missing obs
+. * then the dataset doesnt match the spatial matrix
+. * either fix missings or drop
+. drop if mi(farmwork)
+(3 observations deleted)
+
+. drop if mi(poverty)
+(1 observation deleted)
+</pre>
+<h2 id="merging-covid-data-with-the-stata-format-shapefile">Merging covid data with the Stata-format shapefile</h2>
+<pre class='stata'>. merge 1:1 fips using cb_2018_us_county_20m_prep_sample
+
+    Result                           # of obs.
+    ─────────────────────────────────────────
+    not matched                            40
+        from master                         0  (_merge==1)
+        from using                         40  (_merge==2)
+
+    matched                               117  (_merge==3)
+    ─────────────────────────────────────────
+
+. assert _merge != 1
+
+. keep if _merge == 3
+(40 observations deleted)
+
+. drop _merge
+
+.     
+. * grmap deaths
+</pre>
+<h2 id="fitting-model-with-a-spatial-lag-of-the-dependent-variable">Fitting model with a spatial lag of the dependent variable</h2>
+<p>decision needed between <code>gs2sls</code> and <code>ml</code> options!</p>
+<pre class='stata'>. spmatrix create contiguity W, replace 
+  weighting matrix in W contains 3 islands
+
+. 
+. spregress deaths nonenglish farmwork uninsured poverty older pop_dens time_case1 time_case100, ml dvarlag(W)
+  (117 observations)
+  (117 observations (places) used)
+  (weighting matrix defines 117 places)
+
+Performing grid search ... finished 
+
+Optimizing concentrated log likelihood:
+
+Iteration 0:   log likelihood =  -488.3124  
+Iteration 1:   log likelihood = -488.28423  
+Iteration 2:   log likelihood = -488.28423  
+
+Optimizing unconcentrated log likelihood:
+
+Iteration 0:   log likelihood = -488.28423  
+Iteration 1:   log likelihood = -488.28423  (backed up)
+
+Spatial autoregressive model                    Number of obs     =        117
+Maximum likelihood estimates                    Wald chi2(9)      =     166.72
+                                                Prob > chi2       =     0.0000
+Log likelihood = -488.28423                     Pseudo R2         =     0.5882
+
+──────────────┬────────────────────────────────────────────────────────────────
+       deaths │      Coef.   Std. Err.      z    P>|z|     [95% Conf. Interval]
+──────────────┼────────────────────────────────────────────────────────────────
+deaths        │
+   nonenglish │  -.3115908   .4605586    -0.68   0.499    -1.214269    .5910875
+     farmwork │   .2734212   .3376495     0.81   0.418    -.3883598    .9352021
+    uninsured │   .0074279   .1810468     0.04   0.967    -.3474173    .3622732
+      poverty │   .2068762   .2693672     0.77   0.442    -.3210737    .7348261
+        older │  -.3291183   .2836039    -1.16   0.246    -.8849718    .2267352
+     pop_dens │   .0731065   .0115146     6.35   0.000     .0505382    .0956747
+   time_case1 │   .6323823   .1542516     4.10   0.000     .3300548    .9347098
+ time_case100 │   .0969555   .0550458     1.76   0.078    -.0109323    .2048432
+        _cons │  -12.29595   8.920367    -1.38   0.168    -29.77955    5.187643
+──────────────┼────────────────────────────────────────────────────────────────
+W             │
+       deaths │   .0282202   .1187969     0.24   0.812    -.2046175    .2610579
+──────────────┼────────────────────────────────────────────────────────────────
+ var(e.deaths)│   246.8433   32.27409                      191.0421    318.9434
+──────────────┴────────────────────────────────────────────────────────────────
+Wald test of spatial terms:          chi2(1) = 0.06       Prob > chi2 = 0.8122
+
+.     
+. spregress deaths nonenglish farmwork uninsured poverty older pop_dens time_case1 time_case100, gs2sls dvarlag(W)
+  (117 observations)
+  (117 observations (places) used)
+  (weighting matrix defines 117 places)
+
+Spatial autoregressive model                    Number of obs     =        117
+GS2SLS estimates                                Wald chi2(9)      =     166.06
+                                                Prob > chi2       =     0.0000
+                                                Pseudo R2         =     0.5895
+
+─────────────┬────────────────────────────────────────────────────────────────
+      deaths │      Coef.   Std. Err.      z    P>|z|     [95% Conf. Interval]
+─────────────┼────────────────────────────────────────────────────────────────
+deaths       │
+  nonenglish │  -.2856144    .465456    -0.61   0.539    -1.197891    .6266626
+    farmwork │   .2836498   .3411818     0.83   0.406    -.3850543    .9523539
+   uninsured │   .0514967   .1837429     0.28   0.779    -.3086327    .4116262
+     poverty │   .2107423   .2721705     0.77   0.439    -.3227022    .7441867
+       older │  -.3469442   .2866363    -1.21   0.226     -.908741    .2148526
+    pop_dens │   .0707615   .0116706     6.06   0.000     .0478875    .0936354
+  time_case1 │   .5847741    .156969     3.73   0.000     .2771205    .8924277
+time_case100 │   .1043669   .0556937     1.87   0.061    -.0047907    .2135245
+       _cons │  -13.18851   9.019859    -1.46   0.144    -30.86711     4.49009
+─────────────┼────────────────────────────────────────────────────────────────
+W            │
+      deaths │   .2477779   .1477248     1.68   0.093    -.0417574    .5373133
+─────────────┴────────────────────────────────────────────────────────────────
+Wald test of spatial terms:          chi2(1) = 2.81       Prob > chi2 = 0.0935
+
+.     
+. * estat impact
+</pre>
+</body>
+</html>
