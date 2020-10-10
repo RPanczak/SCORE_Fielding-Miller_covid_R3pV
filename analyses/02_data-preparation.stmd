@@ -7,7 +7,7 @@ date: `s c(current_date)`
 
 # Input
 
-Read data and format date. Starrting point:
+Raw data received from data finder as a starting point:
 
 ```s/
 	set seed 12345
@@ -30,7 +30,6 @@ Read data and format date. Starrting point:
 	order date_proper, a(date)
 	
 	la var cases "Cases"
-	la var deaths "Deaths"
 	d
 ```
 
@@ -56,7 +55,7 @@ Cleaning up observations with missing geography
 	restore
 ```
 
-## Misisng `date`.
+## Not linked to list of cases from NYT
 
 ```s 
 	preserve
@@ -74,14 +73,15 @@ Among them NY boroughs?
 
 # Exclusions
 
-Excluding cases where no fips code is available and no date is specified.
+Excluding cases where no fips code is available and no link to deaths data.
 
 ```s
 	drop if mi(fips)
 	drop if mi(date_proper)
 ```
 
-Authors specifythat analysis focuses on 50 states - that **most likely** means exclusions of `Northern Mariana Islands`, `Puerto rico` and `Hawaii`. All counties from there were excluded.
+Authors specifythat analysis focuses on 50 states - that **most likely** means exclusions of `Northern Mariana Islands`, `Puerto rico`. 
+All counties from there were excluded.
 
 American Samoa				AS	60
 Guam						GU	66
@@ -92,35 +92,12 @@ Virgin Islands				VI	78
 ```s
 	drop if state == "Northern Mariana Islands"
 	drop if state == "Puerto Rico"
-	drop if state == "Hawaii"
+	* drop if state == "Hawaii"
 	
 	* first two could be also achieved with 
 	* drop if fips >= 60000
 	* su fips
 ```
-
-Data is prepared beyond time point of preprint analysis which is `2020-04-26`. Following SCORE recomendation:
-
-> For this replication, SCORE recommends three analyses be performed: one analysis that only uses the dates that have occurred since the original analysis, one analysis that combines all available dates, a third analysis that only uses dates that were used in the original analysis
-
-Two binary indicator variables was created to split dataset into two groups
-
-```s
-	gen split_1 = (date_proper > date("2020-04-26", "YMD"))
-	gen split_2 = (date_proper <= date("2020-04-26", "YMD"))
-
-	*fillin date_proper fips
-	
-	tabstat date_proper, by(split_1) f(%td) not s(min max)
-	tabstat date_proper, by(split_2) f(%td) not s(min max)
-
-	sort fips date_proper, stable	
-	
-	la var split_1 "Only data from after analyses time point"
-	la var split_2 "Time frame used in original analyses"
-	order split_*, a(date_proper)
-	
-```	
 
 # Still some missings
 
@@ -133,11 +110,15 @@ Examples from the date of analyses
 	distinct county if mi(S1602_C01_001E) & date_proper == date("2020-04-26", "YMD")
 	distinct county if mi(S1701_C03_001E) & date_proper == date("2020-04-26", "YMD")
 	distinct county if mi(LABOR) 			& date_proper == date("2020-04-26", "YMD")
+	
+	fre state if mi(LABOR) 			& date_proper == date("2020-04-26", "YMD")
 ```
 
 `LABOR` particularly affected.
 
-No reasonable response from data finder. These cases will be excluded from the analyses since this is default Stata's behaviour and no description on handling missingness was provided in paper. 
+No reasonable response from data finder. 
+
+These cases will be excluded from the analyses since this is default Stata's behaviour and no description on handling missingness was provided in paper. 
 
 # Five boroughs of New York City
 
@@ -248,6 +229,7 @@ Defined from pop density
 There are no records for states with 0 cases so first date in the database for each county is the date needed.
 
 ```s
+	sort fips date_proper, stable	
 	by fips: egen date_case1 = min(date_proper)
 	format date_case1 %tdCCYY-NN-DD
 	gen time_case1 = date_proper - date_case1
@@ -258,16 +240,79 @@ There are no records for states with 0 cases so first date in the database for e
 
 ## No of days between 100th case and shelter in place
 
-**Needs input from data finder!**
+Dates of SIP for each state were provided by data finder.
+
+South Dakota is missing however?
+
+Five states had it imputed to 0 as specified by paper. 
+
+There was one incosistency between paper and data finder - using values from preprint (`Wyoming`). 
+
+```s/
+	* minimum dates as spec by data finder
+	drop sip_effect
+	gen sip_effect = date("20200404", "YMD") 	 if state=="Alabama" 
+	replace sip_effect = date("20200328", "YMD") if state=="Alaska" 
+	replace sip_effect = date("20200331", "YMD") if state=="Arizona" 
+	replace sip_effect = date("20200319", "YMD") if state=="California" 
+	replace sip_effect = date("20200326", "YMD") if state=="Colorado" 
+	replace sip_effect = date("20200323", "YMD") if state=="Connecticut" 
+	replace sip_effect = date("20200324", "YMD") if state=="Delaware" 
+	replace sip_effect = date("20200401", "YMD") if state=="District of Columbia" 
+	replace sip_effect = date("20200403", "YMD") if state=="Florida" 
+	replace sip_effect = date("20200403", "YMD") if state=="Georgia" 
+	replace sip_effect = date("20200325", "YMD") if state=="Hawaii" 
+	replace sip_effect = date("20200325", "YMD") if state=="Idaho" 
+	replace sip_effect = date("20200321", "YMD") if state=="Illinois" 
+	replace sip_effect = date("20200324", "YMD") if state=="Indiana" 
+	replace sip_effect = date("20200330", "YMD") if state=="Kansas" 
+	replace sip_effect = date("20200326", "YMD") if state=="Kentucky" 
+	replace sip_effect = date("20200323", "YMD") if state=="Louisiana" 
+	replace sip_effect = date("20200402", "YMD") if state=="Maine" 
+	replace sip_effect = date("20200330", "YMD") if state=="Maryland" 
+	replace sip_effect = date("20200324", "YMD") if state=="Massachusetts" 
+	replace sip_effect = date("20200324", "YMD") if state=="Michigan"
+	replace sip_effect = date("20200327", "YMD") if state=="Minnesota" 
+	replace sip_effect = date("20200403", "YMD") if state=="Mississippi" 
+	replace sip_effect = date("20200406", "YMD") if state=="Missouri" 
+	replace sip_effect = date("20200328", "YMD") if state=="Montana" 
+	replace sip_effect = date("20200401", "YMD") if state=="Nevada" 
+	replace sip_effect = date("20200327", "YMD") if state=="New Hampshire" 
+	replace sip_effect = date("20200324", "YMD") if state=="New Jersey" 
+	replace sip_effect = date("20200324", "YMD") if state=="New Mexico" 
+	replace sip_effect = date("20200322", "YMD") if state=="New York" 
+	replace sip_effect = date("20200330", "YMD") if state=="North Carolina" 
+	replace sip_effect = date("20200323", "YMD") if state=="Ohio" 
+	replace sip_effect = date("20200328", "YMD") if state=="Oklahoma" 
+	replace sip_effect = date("20200323", "YMD") if state=="Oregon" 
+	replace sip_effect = date("20200401", "YMD") if state=="Pennsylvania" 
+	replace sip_effect = date("20200328", "YMD") if state=="Rhode Island" 
+	replace sip_effect = date("20200406", "YMD") if state=="South Carolina" 
+	*replace sip_effect = date("", "YMD") if state=="South Dakota" 
+	replace sip_effect = date("20200331", "YMD") if state=="Tennessee" 
+	replace sip_effect = date("20200402", "YMD") if state=="Texas" 
+	replace sip_effect = date("20200330", "YMD") if state=="Utah" 
+	replace sip_effect = date("20200325", "YMD") if state=="Vermont" 
+	replace sip_effect = date("20200330", "YMD") if state=="Virginia" 
+	replace sip_effect = date("20200323", "YMD") if state=="Washington" 
+	replace sip_effect = date("20200324", "YMD") if state=="West Virginia"
+	replace sip_effect = date("20200325", "YMD") if state=="Wisconsin" 
+	* replace sip_effect = date("20200328", "YMD") if state=="Wyoming" // inonsistent with preprint info - keeping preprint even if incorrect
+	
+	format sip_effect %tdCCYY-NN-DD
+	la var sip_effect "SIP effect start date"
+	
+	ta state if mi(sip_effect) // not all good here
+```
 
 ```s
 	gen temp = date_proper if cases >= 100
+	sort fips date_proper, stable	
 	by fips: egen date_case100 = min(temp)
 	drop temp
 	format date_case100 %tdCCYY-NN-DD
 	
-	/*
-	gen time_case100 = date_sip - date_case100
+	gen time_case100 = sip_effect - date_case100
 	*drop date_case100
 	
 	* this states are 0 as per preprint specs 
@@ -275,9 +320,21 @@ There are no records for states with 0 cases so first date in the database for e
 	
 	la var date_case100 "Date of case 100"
 	la var time_case100 "Days between case 100 in county and SIP in state"
-	*/
+	
 ```
 
+There is a problem with generating this variable for counties that did not reach 100 cases by the time analyses were conducted. 
+
+Preprint is silent on what was done in such cases. The only two reasonable strategies would be to run analyses without counties with missing information (which would result in drastic sample size reduction) or impute it to 0. The latter has been applied in this case. 
+
+```s
+	distinct fips if mi(time_case100) & date_proper == date("2020-04-26", "YMD")
+	
+	replace time_case100 = 0 if mi(time_case100) & mi(date_case100)
+	
+	fre state if mi(time_case100)
+```
+	
 # Outcome 
 
 Deaths reported by NY Times
@@ -290,24 +347,69 @@ Deaths reported by NY Times
 
 # Final dataset for analysis  
 
-Keeping only last entry on `2020-04-26`!
+SCORE recomendation regarding time frame of the data:
+
+> For this replication, SCORE recommends three analyses be performed: one analysis that only uses the dates that have occurred since the original analysis, one analysis that combines all available dates, a third analysis that only uses dates that were used in the original analysis
+
+The first and second analyses are the same in such cases - they both would use data with the latest available date. 
+
+Two datasets are then prepared around the time point of preprint analysis which is `2020-04-26`. One up to this point (inclusive): 
 
 ```s
-	keep if date == "2020-04-26"
-	drop date date_proper
-	d
-	save "data\merged_covid_usa_prepared.dta" , replace
+	preserve
+	keep if date_proper == date("2020-04-26", "YMD")
+	drop date_proper
+	* d
+	* distinct fips
+	fre nonurban
+	compress
+	sa "data\merged_covid_usa_prepared_original.dta" , replace
+	restore
+```
+
+... and one till the data is available - `2020-07-16`. 
+
+```s
+	preserve
+	keep if date_proper == date("2020-07-16", "YMD")
+	drop date_proper
+	* d
+	* distinct fips
+	fre nonurban
+	compress
+	sa "data\merged_covid_usa_prepared_extended.dta" , replace
+	restore
 ```
 
 # Sample  of 5%
 
-Ignoring spatial relations!
+Spatially contiguous!
 
 ```s
-	sample 5
-	d
-	save "data\merged_covid_usa_prepared_sample.dta" , replace
-```
-	
 
+	* prepared in R using script 
+	
+	import delim "data\fips_sample.csv", clear
+	sa "data\fips_sample.dta", replace
+
+	u "data\merged_covid_usa_prepared_original.dta" , clear
+	mmerge fips using "data\fips_sample.dta", t(1:1)
+	* br if _merge == 2
+	keep if _merge == 3
+	sa "data\merged_covid_usa_prepared_original_sample.dta" , replace
+	
+	u "data\merged_covid_usa_prepared_extended.dta" , clear
+	mmerge fips using "data\fips_sample.dta", t(1:1)
+	br if _merge == 2
+	keep if _merge == 3
+	sa "data\merged_covid_usa_prepared_extended_sample.dta" , replace	
+	
+	u "data\merged_covid_usa_prepared_original.dta" , clear
+	keep fips
+	export delim "data\fips_original.csv"
+	
+	u "data\merged_covid_usa_prepared_extended.dta" , clear
+	keep fips
+	export delim "data\fips_extended.csv"
+```
 	
