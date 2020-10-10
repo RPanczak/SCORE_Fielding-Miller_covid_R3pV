@@ -215,6 +215,12 @@ temp[connected, ] %>%
   rename(state_code = STATEFP) %>% 
   select(fips, state_code) %>% 
   st_write("data/cb_2018_us_county_20m_prep_sample.shp", delete_dsn = TRUE)
+
+temp[connected, ] %>% 
+  mutate(fips = as.integer(GEOID)) %>% 
+  select(fips) %>% 
+  st_drop_geometry() %>% 
+  st_write("data/fips_sample.shp", delete_dsn = TRUE)
 ```
 
 **These are counties that will be used as input for 5% sample analyses!**
