@@ -10,3 +10,5 @@ SCORE project code for replication of
 Note the version! 
 
 [OSF project](https://osf.io/gk6ve)
+
+(CC BY-NC-SA 4.0)
