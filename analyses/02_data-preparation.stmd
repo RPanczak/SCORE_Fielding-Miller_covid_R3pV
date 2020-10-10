@@ -52,7 +52,7 @@ Cleaning up observations with missing geography
 	preserve
 	keep if mi(fips)
 	fre county
-	fre state
+	* fre state
 	restore
 ```
 
@@ -64,6 +64,12 @@ Cleaning up observations with missing geography
 	* fre fips
 	distinct fips
 	restore
+```
+
+Among them NY boroughs? 
+
+```s 
+	count if inlist(fips, 36005, 36047, 36061, 36081, 36085)
 ```
 
 # Exclusions
@@ -90,27 +96,48 @@ Virgin Islands				VI	78
 	
 	* first two could be also achieved with 
 	* drop if fips >= 60000
-	su fips
+	* su fips
 ```
 
-Data is prepared beyond time point of preprint analysis which is `2020-04-26` - these numbers are not needed for the replication of the claim and are excluded, 
+Data is prepared beyond time point of preprint analysis which is `2020-04-26`. Following SCORE recomendation:
+
+> For this replication, SCORE recommends three analyses be performed: one analysis that only uses the dates that have occurred since the original analysis, one analysis that combines all available dates, a third analysis that only uses dates that were used in the original analysis
+
+Two binary indicator variables was created to split dataset into two groups
 
 ```s
-	drop if date_proper > date("2020-04-26", "YMD")
+	gen split_1 = (date_proper > date("2020-04-26", "YMD"))
+	gen split_2 = (date_proper <= date("2020-04-26", "YMD"))
 
 	*fillin date_proper fips
+	
+	tabstat date_proper, by(split_1) f(%td) not s(min max)
+	tabstat date_proper, by(split_2) f(%td) not s(min max)
 
 	sort fips date_proper, stable	
+	
+	la var split_1 "Only data from after analyses time point"
+	la var split_2 "Time frame used in original analyses"
+	order split_*, a(date_proper)
+	
 ```	
+
 # Still some missings
 
-Waiting for response from data finder.
+Examples from the date of analyses
 
 ```s
-	ta county if mi(S1602_C01_001E) // & date == "2020-04-26"
-	ta county if mi(S1701_C03_001E) // & date == "2020-04-26"
-	ta county if mi(LABOR) 			// & date == "2020-04-26"
+	* ta county if mi(S1602_C01_001E) // & date == "2020-04-26"
+	* ta county if mi(S1701_C03_001E) // & date == "2020-04-26"
+	* ta county if mi(LABOR) 			// & date == "2020-04-26"
+	distinct county if mi(S1602_C01_001E) & date_proper == date("2020-04-26", "YMD")
+	distinct county if mi(S1701_C03_001E) & date_proper == date("2020-04-26", "YMD")
+	distinct county if mi(LABOR) 			& date_proper == date("2020-04-26", "YMD")
 ```
+
+`LABOR` particularly affected.
+
+No reasonable response from data finder. These cases will be excluded from the analyses since this is default Stata's behaviour and no description on handling missingness was provided in paper. 
 
 # Five boroughs of New York City
 
@@ -124,10 +151,12 @@ Counties/boroughs and their codes are:
   - Queens is Queens County (FIPS 36081)
   - Staten Island is Richmond County (FIPS 36085)
 
-**Data is missing in the prepared files**, although traces of it are found in raw data? Explanation needed from data finder here?
+**Data was excluded at earlier stage since no info on cases was found for them and no fix for `fips` code was made.** 
 
-```s
-	count if inlist(fips, 36005, 36047, 36061, 36081, 36085)
+*Explanation needed from data finder here?*
+
+```s/
+	* count if inlist(fips, 36005, 36047, 36061, 36081, 36085)
 ```
 
 It might be lucky that we only test the rural counties?
@@ -211,7 +240,7 @@ Defined from pop density
 	la var nonurban "Non-urban counties flag"
 	la de nonurban 0 "urban" 1 "non-urban"
 	la val nonurban nonurban
-	ta nonurban if date == "2020-04-26"
+	ta nonurban if date_proper == date("2020-04-26", "YMD")
 ```
 
 ## No of days since 1st case 
