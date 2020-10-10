@@ -80,7 +80,7 @@ Excluding cases where no fips code is available and no link to deaths data.
 	drop if mi(date_proper)
 ```
 
-Authors specifythat analysis focuses on 50 states - that **most likely** means exclusions of `Northern Mariana Islands`, `Puerto rico`. 
+Authors specifythat analysis focuses on 50 states - that **most likely** means exclusions of `Northern Mariana Islands` and `Puerto Rico`. 
 All counties from there were excluded.
 
 American Samoa				AS	60
@@ -170,7 +170,7 @@ Already in the dataset
 
 ## % uninsured under 65 
 
-Already in the dataset
+Already in the dataset, but has to be constructed from two vars
 
 ```s
 	gen uninsured = S2701_C05_011E + S2701_C05_012E
@@ -186,7 +186,7 @@ Already in the dataset
 ```s
 	ren S1701_C03_001E poverty
 	order poverty, a(uninsured)
-	la var poverty "% nonenglish speaking hh"
+	la var poverty "% below poverty line"
 	univar poverty, d(1)
 ```
 
@@ -242,65 +242,68 @@ There are no records for states with 0 cases so first date in the database for e
 
 Dates of SIP for each state were provided by data finder.
 
-South Dakota is missing however?
+`South Dakota` is missing however?
 
 Five states had it imputed to 0 as specified by paper. 
 
 There was one incosistency between paper and data finder - using values from preprint (`Wyoming`). 
 
 ```s/
-	* minimum dates as spec by data finder
-	drop sip_effect
-	gen sip_effect = date("20200404", "YMD") 	 if state=="Alabama" 
-	replace sip_effect = date("20200328", "YMD") if state=="Alaska" 
-	replace sip_effect = date("20200331", "YMD") if state=="Arizona" 
-	replace sip_effect = date("20200319", "YMD") if state=="California" 
-	replace sip_effect = date("20200326", "YMD") if state=="Colorado" 
-	replace sip_effect = date("20200323", "YMD") if state=="Connecticut" 
-	replace sip_effect = date("20200324", "YMD") if state=="Delaware" 
-	replace sip_effect = date("20200401", "YMD") if state=="District of Columbia" 
-	replace sip_effect = date("20200403", "YMD") if state=="Florida" 
-	replace sip_effect = date("20200403", "YMD") if state=="Georgia" 
-	replace sip_effect = date("20200325", "YMD") if state=="Hawaii" 
-	replace sip_effect = date("20200325", "YMD") if state=="Idaho" 
-	replace sip_effect = date("20200321", "YMD") if state=="Illinois" 
-	replace sip_effect = date("20200324", "YMD") if state=="Indiana" 
-	replace sip_effect = date("20200330", "YMD") if state=="Kansas" 
-	replace sip_effect = date("20200326", "YMD") if state=="Kentucky" 
-	replace sip_effect = date("20200323", "YMD") if state=="Louisiana" 
-	replace sip_effect = date("20200402", "YMD") if state=="Maine" 
-	replace sip_effect = date("20200330", "YMD") if state=="Maryland" 
-	replace sip_effect = date("20200324", "YMD") if state=="Massachusetts" 
-	replace sip_effect = date("20200324", "YMD") if state=="Michigan"
-	replace sip_effect = date("20200327", "YMD") if state=="Minnesota" 
-	replace sip_effect = date("20200403", "YMD") if state=="Mississippi" 
-	replace sip_effect = date("20200406", "YMD") if state=="Missouri" 
-	replace sip_effect = date("20200328", "YMD") if state=="Montana" 
-	replace sip_effect = date("20200401", "YMD") if state=="Nevada" 
-	replace sip_effect = date("20200327", "YMD") if state=="New Hampshire" 
-	replace sip_effect = date("20200324", "YMD") if state=="New Jersey" 
-	replace sip_effect = date("20200324", "YMD") if state=="New Mexico" 
-	replace sip_effect = date("20200322", "YMD") if state=="New York" 
-	replace sip_effect = date("20200330", "YMD") if state=="North Carolina" 
-	replace sip_effect = date("20200323", "YMD") if state=="Ohio" 
-	replace sip_effect = date("20200328", "YMD") if state=="Oklahoma" 
-	replace sip_effect = date("20200323", "YMD") if state=="Oregon" 
-	replace sip_effect = date("20200401", "YMD") if state=="Pennsylvania" 
-	replace sip_effect = date("20200328", "YMD") if state=="Rhode Island" 
-	replace sip_effect = date("20200406", "YMD") if state=="South Carolina" 
-	*replace sip_effect = date("", "YMD") if state=="South Dakota" 
-	replace sip_effect = date("20200331", "YMD") if state=="Tennessee" 
-	replace sip_effect = date("20200402", "YMD") if state=="Texas" 
-	replace sip_effect = date("20200330", "YMD") if state=="Utah" 
-	replace sip_effect = date("20200325", "YMD") if state=="Vermont" 
-	replace sip_effect = date("20200330", "YMD") if state=="Virginia" 
-	replace sip_effect = date("20200323", "YMD") if state=="Washington" 
-	replace sip_effect = date("20200324", "YMD") if state=="West Virginia"
-	replace sip_effect = date("20200325", "YMD") if state=="Wisconsin" 
-	* replace sip_effect = date("20200328", "YMD") if state=="Wyoming" // inonsistent with preprint info - keeping preprint even if incorrect
 	
-	format sip_effect %tdCCYY-NN-DD
-	la var sip_effect "SIP effect start date"
+	* minimum dates as spec by data finder
+	qui{
+		drop sip_effect
+		gen sip_effect = date("20200404", "YMD") 	 if state=="Alabama" 
+		replace sip_effect = date("20200328", "YMD") if state=="Alaska" 
+		replace sip_effect = date("20200331", "YMD") if state=="Arizona" 
+		replace sip_effect = date("20200319", "YMD") if state=="California" 
+		replace sip_effect = date("20200326", "YMD") if state=="Colorado" 
+		replace sip_effect = date("20200323", "YMD") if state=="Connecticut" 
+		replace sip_effect = date("20200324", "YMD") if state=="Delaware" 
+		replace sip_effect = date("20200401", "YMD") if state=="District of Columbia" 
+		replace sip_effect = date("20200403", "YMD") if state=="Florida" 
+		replace sip_effect = date("20200403", "YMD") if state=="Georgia" 
+		replace sip_effect = date("20200325", "YMD") if state=="Hawaii" 
+		replace sip_effect = date("20200325", "YMD") if state=="Idaho" 
+		replace sip_effect = date("20200321", "YMD") if state=="Illinois" 
+		replace sip_effect = date("20200324", "YMD") if state=="Indiana" 
+		replace sip_effect = date("20200330", "YMD") if state=="Kansas" 
+		replace sip_effect = date("20200326", "YMD") if state=="Kentucky" 
+		replace sip_effect = date("20200323", "YMD") if state=="Louisiana" 
+		replace sip_effect = date("20200402", "YMD") if state=="Maine" 
+		replace sip_effect = date("20200330", "YMD") if state=="Maryland" 
+		replace sip_effect = date("20200324", "YMD") if state=="Massachusetts" 
+		replace sip_effect = date("20200324", "YMD") if state=="Michigan"
+		replace sip_effect = date("20200327", "YMD") if state=="Minnesota" 
+		replace sip_effect = date("20200403", "YMD") if state=="Mississippi" 
+		replace sip_effect = date("20200406", "YMD") if state=="Missouri" 
+		replace sip_effect = date("20200328", "YMD") if state=="Montana" 
+		replace sip_effect = date("20200401", "YMD") if state=="Nevada" 
+		replace sip_effect = date("20200327", "YMD") if state=="New Hampshire" 
+		replace sip_effect = date("20200324", "YMD") if state=="New Jersey" 
+		replace sip_effect = date("20200324", "YMD") if state=="New Mexico" 
+		replace sip_effect = date("20200322", "YMD") if state=="New York" 
+		replace sip_effect = date("20200330", "YMD") if state=="North Carolina" 
+		replace sip_effect = date("20200323", "YMD") if state=="Ohio" 
+		replace sip_effect = date("20200328", "YMD") if state=="Oklahoma" 
+		replace sip_effect = date("20200323", "YMD") if state=="Oregon" 
+		replace sip_effect = date("20200401", "YMD") if state=="Pennsylvania" 
+		replace sip_effect = date("20200328", "YMD") if state=="Rhode Island" 
+		replace sip_effect = date("20200406", "YMD") if state=="South Carolina" 
+		*replace sip_effect = date("", "YMD") if state=="South Dakota" 
+		replace sip_effect = date("20200331", "YMD") if state=="Tennessee" 
+		replace sip_effect = date("20200402", "YMD") if state=="Texas" 
+		replace sip_effect = date("20200330", "YMD") if state=="Utah" 
+		replace sip_effect = date("20200325", "YMD") if state=="Vermont" 
+		replace sip_effect = date("20200330", "YMD") if state=="Virginia" 
+		replace sip_effect = date("20200323", "YMD") if state=="Washington" 
+		replace sip_effect = date("20200324", "YMD") if state=="West Virginia"
+		replace sip_effect = date("20200325", "YMD") if state=="Wisconsin" 
+		* replace sip_effect = date("20200328", "YMD") if state=="Wyoming" // inonsistent with preprint info - keeping preprint even if incorrect
+		
+		format sip_effect %tdCCYY-NN-DD
+		la var sip_effect "SIP effect start date"
+	}
 	
 	ta state if mi(sip_effect) // not all good here
 ```
@@ -355,40 +358,38 @@ The first and second analyses are the same in such cases - they both would use d
 
 Two datasets are then prepared around the time point of preprint analysis which is `2020-04-26`. One up to this point (inclusive): 
 
-```s
+```s/
 	preserve
 	keep if date_proper == date("2020-04-26", "YMD")
 	drop date_proper
 	* d
 	* distinct fips
 	fre nonurban
-	compress
+	qui compress
 	sa "data\merged_covid_usa_prepared_original.dta" , replace
 	restore
 ```
 
 ... and one till the data is available - `2020-07-16`. 
 
-```s
+```s/
 	preserve
 	keep if date_proper == date("2020-07-16", "YMD")
 	drop date_proper
 	* d
 	* distinct fips
 	fre nonurban
-	compress
+	qui compress
 	sa "data\merged_covid_usa_prepared_extended.dta" , replace
 	restore
 ```
 
 # Sample  of 5%
 
-Spatially contiguous!
+Spatially contiguous. Prepared with `01_spatial-sample.Rmd` script. 
 
-```s
+```s/
 
-	* prepared in R using script 
-	
 	import delim "data\fips_sample.csv", clear
 	sa "data\fips_sample.dta", replace
 
@@ -396,20 +397,50 @@ Spatially contiguous!
 	mmerge fips using "data\fips_sample.dta", t(1:1)
 	* br if _merge == 2
 	keep if _merge == 3
+	drop _merge
 	sa "data\merged_covid_usa_prepared_original_sample.dta" , replace
 	
 	u "data\merged_covid_usa_prepared_extended.dta" , clear
 	mmerge fips using "data\fips_sample.dta", t(1:1)
-	br if _merge == 2
+	* br if _merge == 2
 	keep if _merge == 3
+	drop _merge
 	sa "data\merged_covid_usa_prepared_extended_sample.dta" , replace	
 	
 	u "data\merged_covid_usa_prepared_original.dta" , clear
 	keep fips
-	export delim "data\fips_original.csv"
+	export delim "data\fips_original.csv", replace
 	
 	u "data\merged_covid_usa_prepared_extended.dta" , clear
 	keep fips
-	export delim "data\fips_extended.csv"
+	export delim "data\fips_extended.csv", replace
+	
+	u "data\merged_covid_usa_prepared_extended.dta" , clear
+	keep if mi(farmwork)
+	keep fips county state
+	export delim "data\fips_missing_farmwork.csv", replace
+```
+
+# Appendix
+
+## List of codes to check spatial coverage
+
+```s/
+	u "data\merged_covid_usa_prepared_original.dta" , clear
+	keep fips
+	export delim "data\fips_original.csv", replace
+	
+	u "data\merged_covid_usa_prepared_extended.dta" , clear
+	keep fips
+	export delim "data\fips_extended.csv", replace
+```
+
+## Tracking missing LABOUR
+
+```s/
+	u "data\merged_covid_usa_prepared_extended.dta" , clear
+	keep if mi(farmwork)
+	keep fips county state
+	export delim "data\fips_missing_farmwork.csv", replace
 ```
 	
