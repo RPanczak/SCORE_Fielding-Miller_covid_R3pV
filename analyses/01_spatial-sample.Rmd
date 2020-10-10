@@ -146,6 +146,35 @@ st_join(counties, st_sf(sample), join = st_intersects, left = FALSE) %>%
   qtm(borders = "purple", fill = NULL)
 ```
 
+# Solution 4: `igraph`, `spdep` and `sf` custom solution
 
+Solution suggested by @Spacedman [here](https://gis.stackexchange.com/questions/375177/in-r-how-do-i-generate-r-random-sample-of-contiguous-polygons).
+
+```{r}
+connectUp <- function(polys, n){
+    nb = spdep::poly2nb(polys)
+    g = igraph::graph.adjlist(nb)
+
+    selected = sample(nrow(polys),1)
+
+    while(length(selected) < n){
+        nbrs = unlist(igraph::ego(g, 1, selected, mindist=1))
+        newnbrs = setdiff(nbrs, selected)
+        selected = c(selected, sample(newnbrs,1))
+    }
+    return(selected)
+}
+
+connected <- connectUp(counties, round(nrow(counties)*0.05))
+
+connected %>% 
+  qtm(borders = "purple", fill = NULL)
+
+connected %>% 
+  mutate(fips = as.integer(GEOID)) %>% 
+  rename(state_code = STATEFP) %>% 
+  select(fips, state_code) %>% 
+  st_write("data/cb_2018_us_county_20m_prep_sample.shp", delete_dsn = TRUE)
+```
 
 
