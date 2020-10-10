@@ -7,7 +7,7 @@ SCORE project code for replication of
 
 [Paper](https://www.medrxiv.org/content/10.1101/2020.05.03.20089698v1?versioned=true)
 
-Note the version! 
+*Note the version!* Replication attempt on the first submitted preprint.
 
 [OSF project](https://osf.io/gk6ve)
 
