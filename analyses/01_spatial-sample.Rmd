@@ -45,15 +45,31 @@ Using `20m` (most generlized) file.
 ```{r load, include=FALSE}
 counties_raw <- st_read("data-raw/Raw files/Spatial/cb_2018_us_county_20m/cb_2018_us_county_20m.shp") %>% 
   select(-ALAND, -AWATER)
+```
 
-qtm(counties_raw)
-View(st_drop_geometry(counties_raw))
 
-# to exclude
+```{r}
+# qtm(counties_raw)
+# View(st_drop_geometry(counties_raw))
+```
+
+Excluding Hawaii: 
+
+```{r}
 counties_raw %>% 
-  filter(STATEFP == 15 | STATEFP >= 60) %>% 
+  filter(STATEFP == 15) %>% 
   qtm(fill = "purple", borders = NULL)
+```
 
+Excluding Puerto Rico: 
+
+```{r}
+counties_raw %>% 
+  filter(STATEFP >= 60) %>% 
+  qtm(fill = "purple", borders = NULL)
+```
+
+```{r include=FALSE}
 counties <- counties_raw %>% 
   filter(STATEFP != 15) %>% 
   filter(STATEFP < 60)
@@ -66,29 +82,50 @@ counties %>%
   st_write("data/cb_2018_us_county_20m_prep.shp", delete_dsn = TRUE)
 ```
 
-Excluding Hawaii & Puerto Rico
+Final dataset used:
 
 ```{r}
 qtm(counties, borders = "purple", fill = NULL)
 ```
 
-We have `r nrow(counties)` counties and 5% sample would mean `r round(nrow(counties)*0.05)` polygons.
+From these set of `r nrow(counties)` counties 5% sample would mean `r round(nrow(counties)*0.05)` polygons.
 
 Also - important to notice - there are two counties with no neighbours
-
 
 ```{r}
 counties %>% 
   slice(2463) %>% 
-  qtm(borders = "purple", fill = NULL)
+  qtm(borders = "purple", text= "NAME", text.col = "purple", fill = NULL)
 ```
 
 
 ```{r}
 counties %>% 
   slice(2727) %>% 
+  qtm(borders = "purple", text= "NAME", text.col = "purple", fill = NULL)
+```
+
+And also important to notice the text from the paper:
+
+>  Within this dataset, the 5 boroughs/counties of New York are treated as a single entity.
+We have done the same in these analyses, assigning all 5 counties the values
+associated with New York County
+
+The counties in question are most likely these
+
+  - The Bronx is Bronx County (FIPS 36005)
+  - Brooklyn is Kings County (FIPS 36047)
+  - Manhattan is New York County (FIPS 36061)
+  - Queens is Queens County (FIPS 36081)
+  - Staten Island is Richmond County (FIPS 36085)
+  
+```{r}
+counties_raw %>% 
+  filter(GEOID %in% c(36005, 36047, 36061, 36081, 36085)) %>% 
   qtm(borders = "purple", fill = NULL)
 ```
+
+**At the moment, using dataset prepared these counties are excluded from analyses since there is no merge to explanatory variables and no spatial join possible!**
 
 # Solution 1: picking one state at random
 
@@ -165,16 +202,19 @@ connectUp <- function(polys, n){
     return(selected)
 }
 
-connected <- connectUp(counties, round(nrow(counties)*0.05))
+temp <- counties %>% 
+  slice(-c(2463, 2727))
 
-connected %>% 
+connected <- connectUp(temp, round(nrow(temp)*0.05))
+
+temp[connected, ] %>% 
   qtm(borders = "purple", fill = NULL)
 
-connected %>% 
+temp[connected, ] %>% 
   mutate(fips = as.integer(GEOID)) %>% 
   rename(state_code = STATEFP) %>% 
   select(fips, state_code) %>% 
   st_write("data/cb_2018_us_county_20m_prep_sample.shp", delete_dsn = TRUE)
 ```
 
-
+**These are counties that will be used as input for 5% sample analyses!**
