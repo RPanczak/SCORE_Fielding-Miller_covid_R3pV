@@ -31,7 +31,8 @@ set.seed(12345)
 
 library(pacman) 
 
-p_load(tidyverse, sf, tmap, scales)
+p_load(tidyverse, sf, tmap, scales,
+       igraph, spdep)
 
 tmap_mode("view")
 ```
@@ -39,8 +40,10 @@ tmap_mode("view")
 
 # County boundaries
 
+Using `20m` (most generlized) file.
+
 ```{r load, include=FALSE}
-counties_raw <- st_read("data-raw/Spatial/cb_2018_us_county_20m/cb_2018_us_county_20m.shp") %>% 
+counties_raw <- st_read("data-raw/Raw files/Spatial/cb_2018_us_county_20m/cb_2018_us_county_20m.shp") %>% 
   select(-ALAND, -AWATER)
 
 qtm(counties_raw)
@@ -54,6 +57,13 @@ counties_raw %>%
 counties <- counties_raw %>% 
   filter(STATEFP != 15) %>% 
   filter(STATEFP < 60)
+
+# saving prep file for Stata
+counties %>% 
+  mutate(fips = as.integer(GEOID)) %>% 
+  rename(state_code = STATEFP) %>% 
+  select(fips, state_code) %>% 
+  st_write("data/cb_2018_us_county_20m_prep.shp", delete_dsn = TRUE)
 ```
 
 Excluding Hawaii & Puerto Rico
@@ -64,16 +74,23 @@ qtm(counties, borders = "purple", fill = NULL)
 
 We have `r nrow(counties)` counties and 5% sample would mean `r round(nrow(counties)*0.05)` polygons.
 
-```{r load, include=FALSE}
+Also - important to notice - there are two counties with no neighbours
+
+
+```{r}
 counties %>% 
-  mutate(fips = as.integer(GEOID)) %>% 
-  rename(state_code = STATEFP) %>% 
-  select(fips, state_code) %>% 
-  st_write("data/cb_2018_us_county_20m_prep.shp", delete_dsn = TRUE)
+  slice(2463) %>% 
+  qtm(borders = "purple", fill = NULL)
 ```
 
 
-# Picking one state at random
+```{r}
+counties %>% 
+  slice(2727) %>% 
+  qtm(borders = "purple", fill = NULL)
+```
+
+# Solution 1: picking one state at random
 
 Might be an option. Must be the same in between runs? Most likely not enough counties?
 
@@ -94,7 +111,7 @@ counties %>%
 ```
 
 
-# Picking fixed state 
+# Solution 2: picking fixed state 
 
 ```{r}
 selected <- 48
@@ -103,8 +120,6 @@ selected <- 48
 Texas as the biggest state that gives `r round((nrow(counties[counties$STATEFP == selected,])/nrow(counties))*100, digits = 1)` data?
 
 ```{r}
-# selected
-
 counties %>% 
   filter(STATEFP == selected) %>% 
   select(NAME) %>% 
@@ -115,7 +130,7 @@ counties %>%
   qtm(borders = "purple", fill = NULL)
 ```
 
-# `st_sample` 
+# Solution 3: `st_sample` 
 
 Unfortunately non contiguous :/
 
@@ -130,4 +145,7 @@ sample %>%
 st_join(counties, st_sf(sample), join = st_intersects, left = FALSE) %>% 
   qtm(borders = "purple", fill = NULL)
 ```
+
+
+
 
