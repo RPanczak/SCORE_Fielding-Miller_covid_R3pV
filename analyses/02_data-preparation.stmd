@@ -14,27 +14,56 @@ Read data and format date. Starrting point:
 	
 	if "`c(username)'" == "panczak" {
 			
-	cd "C:\external\SCORE_Fielding-Miller_covid_R3pV"
+		cd "C:\external\SCORE_Fielding-Miller_covid_R3pV"
 	}
 	else {    
-		* settings for other users
+		* adapt settings for other users
+		* cd ...
 	}	
 	
-	use "data-raw\Script\merged_covid_usa.dta" , clear
+	use "data-raw\Script\merged_covid_usa_v2.dta" , clear
 	
-	d
-	
+	* crap date handling in original files?
+	tostring date, replace
 	gen date_proper = date(date, "YMD")
 	format date_proper %tdCCYY-NN-DD
 	order date_proper, a(date)
 	
 	la var cases "Cases"
+	la var deaths "Deaths"
+	d
 ```
 
 # Missing data 
 
+Cleaning up observations with missing geography 
+
+```s
+	drop if county == "Unknown"
+```
+
 ```s
 	mdesc
+```
+
+## Misisng `fips` codes.
+
+```s 
+	preserve
+	keep if mi(fips)
+	fre county
+	fre state
+	restore
+```
+
+## Misisng `date`.
+
+```s 
+	preserve
+	keep if mi(date_proper)
+	* fre fips
+	distinct fips
+	restore
 ```
 
 # Exclusions
@@ -43,10 +72,10 @@ Excluding cases where no fips code is available and no date is specified.
 
 ```s
 	drop if mi(fips)
-	drop if mi(date)
+	drop if mi(date_proper)
 ```
 
-Authors specifythat analysis focuses on 50 states - that most likely means exclusions of `Northern Mariana Islands`, `Puerto rico` and `Hawaii`. All counties from there were excluded.
+Authors specifythat analysis focuses on 50 states - that **most likely** means exclusions of `Northern Mariana Islands`, `Puerto rico` and `Hawaii`. All counties from there were excluded.
 
 American Samoa				AS	60
 Guam						GU	66
