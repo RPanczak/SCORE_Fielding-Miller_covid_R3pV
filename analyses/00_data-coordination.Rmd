@@ -109,5 +109,5 @@ upload_location <- project %>%
   osf_ls_nodes() %>%
   filter(name == "Analysis")
 
-osf_upload(upload_location, path = "cleaning.R", conflicts = "overwrite")
+osf_upload(upload_location, path = "analyses", conflicts = "overwrite")
 ```
