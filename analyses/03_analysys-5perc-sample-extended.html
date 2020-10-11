@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang xml:lang>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
 <head>
 <style>
 /* CSS for Markstat 2.0 using Pandoc 2.0 */
@@ -65,7 +65,7 @@ table tbody:last-child tr:last-child td {border-bottom:1px solid black;}
 <td>author: “Radoslaw Panczak”</td>
 </tr>
 <tr class="even">
-<td>date: 10 Oct 2020</td>
+<td>date: 11 Oct 2020</td>
 </tr>
 </tbody>
 </table>
@@ -75,7 +75,7 @@ table tbody:last-child tr:last-child td {border-bottom:1px solid black;}
 
 Contains data from merged_covid_usa_prepared_extended_sample.dta
   obs:           150                          
- vars:            22                          10 Oct 2020 21:00
+ vars:            18                          11 Oct 2020 20:07
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
               storage   display    value
 variable name   type    format     label      variable label
@@ -93,15 +93,11 @@ uninsured       float   %9.0g                 % uninsured under 65
 poverty         double  %10.0g                % below poverty line
 older           double  %10.0g                % aged 65 and above
 pop_dens        float   %9.0g                 Pop density
-S2701_C05_011E  double  %10.0g                
-S2701_C05_012E  double  %10.0g                
-DP05_0001E      long    %10.0g                
-LABOR           long    %10.0g                Value
 date_case1      int     %td..                 Date of case 1
 time_case1      int     %9.0g                 Days since case 1 in county
 sip_effect      int     %td..                 SIP effect start date
 date_case100    int     %td..                 Date of case 100
-time_case100    byte    %9.0g                 Days between case 100 in county and SIP in state
+time_case100    int     %9.0g                 Days between case 100 in county and SIP in state
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 Sorted by: 
 </pre>
@@ -123,10 +119,6 @@ Sorted by:
         poverty │           1            150           0.67
           older │           0            150           0.00
        pop_dens │           0            150           0.00
-   S2701_C~011E │           0            150           0.00
-   S2701_C~012E │           0            150           0.00
-     DP05_0001E │           0            150           0.00
-          LABOR │           4            150           2.67
      date_case1 │           0            150           0.00
      time_case1 │           0            150           0.00
      sip_effect │          12            150           8.00
@@ -196,7 +188,7 @@ Variable       n     Mean     S.D.      Min      .25      Mdn      .75      Max
 
 Contains data from cb_2018_us_county_20m_prep_sample.dta
   obs:           157                          
- vars:             5                          10 Oct 2020 21:00
+ vars:             5                          11 Oct 2020 20:09
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
               storage   display    value
 variable name   type    format     label      variable label
@@ -242,6 +234,30 @@ file cb_2018_us_county_20m_prep_sample.dta saved
 . * stata deletes cases with missing obs
 . * then the dataset doesnt match the spatial matrix
 . * either fix missings or drop
+. mdesc
+
+    Variable    │     Missing          Total     Percent Missing
+────────────────┼───────────────────────────────────────────────
+           date │           0            146           0.00
+       nonurban │           0            146           0.00
+         county │           0            146           0.00
+          state │           0            146           0.00
+           fips │           0            146           0.00
+          cases │           0            146           0.00
+         deaths │           0            146           0.00
+     nonenglish │           0            146           0.00
+       farmwork │           4            146           2.74
+      uninsured │           0            146           0.00
+        poverty │           1            146           0.68
+          older │           0            146           0.00
+       pop_dens │           0            146           0.00
+     date_case1 │           0            146           0.00
+     time_case1 │           0            146           0.00
+     sip_effect │          12            146           8.22
+   date_case100 │          89            146          60.96
+   time_case100 │           0            146           0.00
+────────────────┼───────────────────────────────────────────────
+
 . drop if mi(farmwork)
 (4 observations deleted)
 
@@ -302,18 +318,18 @@ Log likelihood = -852.97442                     Pseudo R2         =     0.3374
        deaths │      Coef.   Std. Err.      z    P>|z|     [95% Conf. Interval]
 ──────────────┼────────────────────────────────────────────────────────────────
 deaths        │
-   nonenglish │  -.7011634   2.678085    -0.26   0.793    -5.950113    4.547786
+   nonenglish │  -.7011633   2.678085    -0.26   0.793    -5.950113    4.547786
      farmwork │   1.320406   1.769279     0.75   0.455    -2.147317    4.788129
     uninsured │   .3441271   1.031079     0.33   0.739    -1.676751    2.365005
-      poverty │   2.545381   1.614646     1.58   0.115    -.6192681    5.710029
+      poverty │   2.545381   1.614646     1.58   0.115     -.619268    5.710029
         older │  -1.441147   1.727634    -0.83   0.404    -4.827246    1.944953
      pop_dens │   .3948866   .0644542     6.13   0.000     .2685586    .5212146
-   time_case1 │   .7336299   .3829373     1.92   0.055    -.0169134    1.484173
- time_case100 │   .6816363   .3548405     1.92   0.055    -.0138383    1.377111
-        _cons │  -85.85988   61.60396    -1.39   0.163    -206.6014    34.88167
+   time_case1 │     .73363   .3829373     1.92   0.055    -.0169134    1.484173
+ time_case100 │  -.6816363   .3548405    -1.92   0.055    -1.377111    .0138383
+        _cons │  -85.85988   61.60396    -1.39   0.163    -206.6014    34.88166
 ──────────────┼────────────────────────────────────────────────────────────────
 W             │
-       deaths │   .3077902   .1169427     2.63   0.008     .0785868    .5369936
+       deaths │   .3077902   .1169427     2.63   0.008     .0785868    .5369935
 ──────────────┼────────────────────────────────────────────────────────────────
  var(e.deaths)│   10377.45   1241.084                      8209.028    13118.66
 ──────────────┴────────────────────────────────────────────────────────────────
@@ -341,7 +357,7 @@ deaths       │
        older │  -1.734486   1.758349    -0.99   0.324    -5.180786    1.711815
     pop_dens │   .3879637   .0647953     5.99   0.000     .2609672    .5149602
   time_case1 │   .6737964   .3885301     1.73   0.083    -.0877086    1.435301
-time_case100 │   .7328983   .3591166     2.04   0.041     .0290428    1.436754
+time_case100 │  -.7328983   .3591166    -2.04   0.041    -1.436754   -.0290428
        _cons │  -77.00937   62.33612    -1.24   0.217    -199.1859    45.16719
 ─────────────┼────────────────────────────────────────────────────────────────
 W            │

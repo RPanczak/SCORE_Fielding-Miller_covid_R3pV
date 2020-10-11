@@ -85,6 +85,7 @@ Counties with missing information on `farmwork` and `poverty` are also excluded 
 	* stata deletes cases with missing obs
 	* then the dataset doesnt match the spatial matrix
 	* either fix missings or drop
+	mdesc
 	drop if mi(farmwork)
 	drop if mi(poverty)
 ```

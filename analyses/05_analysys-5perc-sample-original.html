@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang xml:lang>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
 <head>
 <style>
 /* CSS for Markstat 2.0 using Pandoc 2.0 */
@@ -41,7 +41,7 @@ table tbody:last-child tr:last-child td {border-bottom:1px solid black;}
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>04_analysys-5perc-sample-original</title>
+  <title>05_analysys-5perc-sample-original</title>
   <style>
       code{white-space: pre-wrap;}
       span.smallcaps{font-variant: small-caps;}
@@ -65,7 +65,7 @@ table tbody:last-child tr:last-child td {border-bottom:1px solid black;}
 <td>author: “Radoslaw Panczak”</td>
 </tr>
 <tr class="even">
-<td>date: 10 Oct 2020</td>
+<td>date: 11 Oct 2020</td>
 </tr>
 </tbody>
 </table>
@@ -75,7 +75,7 @@ table tbody:last-child tr:last-child td {border-bottom:1px solid black;}
 
 Contains data from merged_covid_usa_prepared_original_sample.dta
   obs:           125                          
- vars:            22                          10 Oct 2020 21:00
+ vars:            18                          11 Oct 2020 20:09
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
               storage   display    value
 variable name   type    format     label      variable label
@@ -93,10 +93,6 @@ uninsured       float   %9.0g                 % uninsured under 65
 poverty         double  %10.0g                % below poverty line
 older           double  %10.0g                % aged 65 and above
 pop_dens        float   %9.0g                 Pop density
-S2701_C05_011E  double  %10.0g                
-S2701_C05_012E  double  %10.0g                
-DP05_0001E      long    %10.0g                
-LABOR           long    %10.0g                Value
 date_case1      int     %td..                 Date of case 1
 time_case1      byte    %9.0g                 Days since case 1 in county
 sip_effect      int     %td..                 SIP effect start date
@@ -123,14 +119,10 @@ Sorted by:
         poverty │           1            125           0.80
           older │           0            125           0.00
        pop_dens │           0            125           0.00
-   S2701_C~011E │           0            125           0.00
-   S2701_C~012E │           0            125           0.00
-     DP05_0001E │           0            125           0.00
-          LABOR │           3            125           2.40
      date_case1 │           0            125           0.00
      time_case1 │           0            125           0.00
      sip_effect │           5            125           4.00
-   date_case100 │          64            125          51.20
+   date_case100 │          86            125          68.80
    time_case100 │           0            125           0.00
 ────────────────┼───────────────────────────────────────────────
 </pre>
@@ -196,7 +188,7 @@ Variable       n     Mean     S.D.      Min      .25      Mdn      .75      Max
 
 Contains data from cb_2018_us_county_20m_prep_sample.dta
   obs:           157                          
- vars:             5                          10 Oct 2020 21:00
+ vars:             5                          11 Oct 2020 20:09
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
               storage   display    value
 variable name   type    format     label      variable label
@@ -285,40 +277,40 @@ Performing grid search ... finished
 
 Optimizing concentrated log likelihood:
 
-Iteration 0:   log likelihood =  -488.3124  
-Iteration 1:   log likelihood = -488.28423  
-Iteration 2:   log likelihood = -488.28423  
+Iteration 0:   log likelihood = -488.34535  
+Iteration 1:   log likelihood = -488.33795  
+Iteration 2:   log likelihood = -488.33795  
 
 Optimizing unconcentrated log likelihood:
 
-Iteration 0:   log likelihood = -488.28423  
-Iteration 1:   log likelihood = -488.28423  (backed up)
+Iteration 0:   log likelihood = -488.33795  
+Iteration 1:   log likelihood = -488.33795  (backed up)
 
 Spatial autoregressive model                    Number of obs     =        117
-Maximum likelihood estimates                    Wald chi2(9)      =     166.72
+Maximum likelihood estimates                    Wald chi2(9)      =     166.44
                                                 Prob > chi2       =     0.0000
-Log likelihood = -488.28423                     Pseudo R2         =     0.5882
+Log likelihood = -488.33795                     Pseudo R2         =     0.5875
 
 ──────────────┬────────────────────────────────────────────────────────────────
        deaths │      Coef.   Std. Err.      z    P>|z|     [95% Conf. Interval]
 ──────────────┼────────────────────────────────────────────────────────────────
 deaths        │
-   nonenglish │  -.3115908   .4605586    -0.68   0.499    -1.214269    .5910875
-     farmwork │   .2734212   .3376495     0.81   0.418    -.3883598    .9352021
-    uninsured │   .0074279   .1810468     0.04   0.967    -.3474173    .3622732
-      poverty │   .2068762   .2693672     0.77   0.442    -.3210737    .7348261
-        older │  -.3291183   .2836039    -1.16   0.246    -.8849718    .2267352
-     pop_dens │   .0731065   .0115146     6.35   0.000     .0505382    .0956747
-   time_case1 │   .6323823   .1542516     4.10   0.000     .3300548    .9347098
- time_case100 │   .0969555   .0550458     1.76   0.078    -.0109323    .2048432
-        _cons │  -12.29595   8.920367    -1.38   0.168    -29.77955    5.187643
+   nonenglish │   -.119463   .4808399    -0.25   0.804    -1.061892    .8229659
+     farmwork │   .2440078   .3404825     0.72   0.474    -.4233256    .9113412
+    uninsured │  -.0230808   .1811377    -0.13   0.899    -.3781041    .3319425
+      poverty │   .1673793   .2677806     0.63   0.532     -.357461    .6922196
+        older │  -.4383167   .2898713    -1.51   0.131    -1.006454    .1298205
+     pop_dens │   .0722591   .0116245     6.22   0.000     .0494755    .0950427
+   time_case1 │   .6388116   .1547476     4.13   0.000     .3355119    .9421114
+ time_case100 │  -.3852036    .222698    -1.73   0.084    -.8216837    .0512764
+        _cons │  -10.13517   8.968322    -1.13   0.258    -27.71276    7.442417
 ──────────────┼────────────────────────────────────────────────────────────────
 W             │
-       deaths │   .0282202   .1187969     0.24   0.812    -.2046175    .2610579
+       deaths │   .0144469    .118642     0.12   0.903    -.2180872     .246981
 ──────────────┼────────────────────────────────────────────────────────────────
- var(e.deaths)│   246.8433   32.27409                      191.0421    318.9434
+ var(e.deaths)│   247.0898   32.30573                      191.2338    319.2604
 ──────────────┴────────────────────────────────────────────────────────────────
-Wald test of spatial terms:          chi2(1) = 0.06       Prob > chi2 = 0.8122
+Wald test of spatial terms:          chi2(1) = 0.01       Prob > chi2 = 0.9031
 
 .     
 . spregress deaths nonenglish farmwork uninsured poverty older pop_dens time_case1 time_case100, gs2sls dvarlag(W)
@@ -327,7 +319,7 @@ Wald test of spatial terms:          chi2(1) = 0.06       Prob > chi2 = 0.8122
   (weighting matrix defines 117 places)
 
 Spatial autoregressive model                    Number of obs     =        117
-GS2SLS estimates                                Wald chi2(9)      =     166.06
+GS2SLS estimates                                Wald chi2(9)      =     165.72
                                                 Prob > chi2       =     0.0000
                                                 Pseudo R2         =     0.5895
 
@@ -335,20 +327,20 @@ GS2SLS estimates                                Wald chi2(9)      =     166.06
       deaths │      Coef.   Std. Err.      z    P>|z|     [95% Conf. Interval]
 ─────────────┼────────────────────────────────────────────────────────────────
 deaths       │
-  nonenglish │  -.2856144    .465456    -0.61   0.539    -1.197891    .6266626
-    farmwork │   .2836498   .3411818     0.83   0.406    -.3850543    .9523539
-   uninsured │   .0514967   .1837429     0.28   0.779    -.3086327    .4116262
-     poverty │   .2107423   .2721705     0.77   0.439    -.3227022    .7441867
-       older │  -.3469442   .2866363    -1.21   0.226     -.908741    .2148526
-    pop_dens │   .0707615   .0116706     6.06   0.000     .0478875    .0936354
-  time_case1 │   .5847741    .156969     3.73   0.000     .2771205    .8924277
-time_case100 │   .1043669   .0556937     1.87   0.061    -.0047907    .2135245
-       _cons │  -13.18851   9.019859    -1.46   0.144    -30.86711     4.49009
+  nonenglish │   -.098869    .484726    -0.20   0.838    -1.048914    .8511764
+    farmwork │   .2569663   .3432206     0.75   0.454    -.4157337    .9296663
+   uninsured │   .0136608    .183338     0.07   0.941    -.3456751    .3729968
+     poverty │   .1671235   .2698939     0.62   0.536    -.3618588    .6961057
+       older │  -.4547352   .2922553    -1.56   0.120    -1.027545    .1180746
+    pop_dens │   .0704497   .0117454     6.00   0.000     .0474291    .0934702
+  time_case1 │   .5964849   .1571643     3.80   0.000     .2884485    .9045213
+time_case100 │  -.3877583   .2244585    -1.73   0.084    -.8276889    .0521724
+       _cons │  -10.85542   9.045094    -1.20   0.230    -28.58348    6.872641
 ─────────────┼────────────────────────────────────────────────────────────────
 W            │
-      deaths │   .2477779   .1477248     1.68   0.093    -.0417574    .5373133
+      deaths │   .2020525   .1471494     1.37   0.170    -.0863551    .4904601
 ─────────────┴────────────────────────────────────────────────────────────────
-Wald test of spatial terms:          chi2(1) = 2.81       Prob > chi2 = 0.0935
+Wald test of spatial terms:          chi2(1) = 1.89       Prob > chi2 = 0.1697
 
 .     
 . * estat impact

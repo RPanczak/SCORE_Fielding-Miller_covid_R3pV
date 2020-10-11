@@ -1,6 +1,6 @@
 ---
 title: SCORE: Fielding-Miller et al. (2020) replication
-subtitle: Data preparation
+subtitle: Data preparation - original dataset
 author: Radoslaw Panczak, University of Bern
 date: `s c(current_date)`
 ---
@@ -31,6 +31,12 @@ Raw data received from data finder as a starting point:
 	
 	la var cases "Cases"
 	d
+```
+
+# Matching date to the preprint 
+
+```s/
+	keep if date_proper <= date("2020-04-26", "YMD") | mi(date_proper)
 ```
 
 # Missing data 
@@ -92,7 +98,6 @@ Virgin Islands				VI	78
 ```s
 	drop if state == "Northern Mariana Islands"
 	drop if state == "Puerto Rico"
-	* drop if state == "Hawaii"
 	
 	* first two could be also achieved with 
 	* drop if fips >= 60000
@@ -166,6 +171,7 @@ Already in the dataset
 	order farmwork, a(nonenglish)
 	la var farmwork "% engaged in farmwork"
 	univar farmwork, d(1)
+	drop LABOR DP05_0001E
 ```
 
 ## % uninsured under 65 
@@ -177,6 +183,7 @@ Already in the dataset, but has to be constructed from two vars
 	order uninsured, a(farmwork)
 	la var uninsured "% uninsured under 65"
 	univar uninsured, d(1)
+	drop S2701_C05_011E S2701_C05_012E
 ```
 
 ## % below poverty line 
@@ -221,7 +228,7 @@ Defined from pop density
 	la var nonurban "Non-urban counties flag"
 	la de nonurban 0 "urban" 1 "non-urban"
 	la val nonurban nonurban
-	ta nonurban if date_proper == date("2020-04-26", "YMD")
+	fre nonurban if date_proper == date("2020-04-26", "YMD")
 ```
 
 ## No of days since 1st case 
@@ -241,8 +248,6 @@ There are no records for states with 0 cases so first date in the database for e
 ## No of days between 100th case and shelter in place
 
 Dates of SIP for each state were provided by data finder.
-
-`South Dakota` is missing however?
 
 Five states had it imputed to 0 as specified by paper. 
 
@@ -305,7 +310,8 @@ There was one incosistency between paper and data finder - using values from pre
 		la var sip_effect "SIP effect start date"
 	}
 	
-	ta state if mi(sip_effect) // not all good here
+	* fre state if mi(sip_effect) // not all good here
+	su sip_effect, format
 ```
 
 ```s
@@ -315,15 +321,17 @@ There was one incosistency between paper and data finder - using values from pre
 	drop temp
 	format date_case100 %tdCCYY-NN-DD
 	
-	gen time_case100 = sip_effect - date_case100
+	gen time_case100 = date_case100 - sip_effect
 	*drop date_case100
 	
 	* this states are 0 as per preprint specs 
 	replace time_case100 = 0 if inlist(state, "Arkansas", "Iowa", "Nebraska", "North Dakota", "Wyoming")
+
+	* this state is not mentioned in the preprint but should be 0 according to data finder 
+	replace time_case100 = 0 if inlist(state, "South Dakota")
 	
 	la var date_case100 "Date of case 100"
 	la var time_case100 "Days between case 100 in county and SIP in state"
-	
 ```
 
 There is a problem with generating this variable for counties that did not reach 100 cases by the time analyses were conducted. 
@@ -331,11 +339,9 @@ There is a problem with generating this variable for counties that did not reach
 Preprint is silent on what was done in such cases. The only two reasonable strategies would be to run analyses without counties with missing information (which would result in drastic sample size reduction) or impute it to 0. The latter has been applied in this case. 
 
 ```s
-	distinct fips if mi(time_case100) & date_proper == date("2020-04-26", "YMD")
+	distinct fips if mi(time_case100) 
 	
 	replace time_case100 = 0 if mi(time_case100) & mi(date_case100)
-	
-	fre state if mi(time_case100)
 ```
 	
 # Outcome 
@@ -356,10 +362,9 @@ SCORE recomendation regarding time frame of the data:
 
 The first and second analyses are the same in such cases - they both would use data with the latest available date. 
 
-Two datasets are then prepared around the time point of preprint analysis which is `2020-04-26`. One up to this point (inclusive): 
+This script generates data with the date matching preprint analyses which is `2020-04-26`.  
 
 ```s/
-	preserve
 	keep if date_proper == date("2020-04-26", "YMD")
 	drop date_proper
 	* d
@@ -367,21 +372,7 @@ Two datasets are then prepared around the time point of preprint analysis which 
 	fre nonurban
 	qui compress
 	sa "data\merged_covid_usa_prepared_original.dta" , replace
-	restore
-```
-
-... and one till the data is available - `2020-07-16`. 
-
-```s/
-	preserve
-	keep if date_proper == date("2020-07-16", "YMD")
-	drop date_proper
-	* d
-	* distinct fips
-	fre nonurban
-	qui compress
-	sa "data\merged_covid_usa_prepared_extended.dta" , replace
-	restore
+	d
 ```
 
 # Sample  of 5%
@@ -399,26 +390,7 @@ Spatially contiguous. Prepared with `01_spatial-sample.Rmd` script.
 	keep if _merge == 3
 	drop _merge
 	sa "data\merged_covid_usa_prepared_original_sample.dta" , replace
-	
-	u "data\merged_covid_usa_prepared_extended.dta" , clear
-	mmerge fips using "data\fips_sample.dta", t(1:1)
-	* br if _merge == 2
-	keep if _merge == 3
-	drop _merge
-	sa "data\merged_covid_usa_prepared_extended_sample.dta" , replace	
-	
-	u "data\merged_covid_usa_prepared_original.dta" , clear
-	keep fips
-	export delim "data\fips_original.csv", replace
-	
-	u "data\merged_covid_usa_prepared_extended.dta" , clear
-	keep fips
-	export delim "data\fips_extended.csv", replace
-	
-	u "data\merged_covid_usa_prepared_extended.dta" , clear
-	keep if mi(farmwork)
-	keep fips county state
-	export delim "data\fips_missing_farmwork.csv", replace
+	d
 ```
 
 # Appendix
@@ -429,18 +401,4 @@ Spatially contiguous. Prepared with `01_spatial-sample.Rmd` script.
 	u "data\merged_covid_usa_prepared_original.dta" , clear
 	keep fips
 	export delim "data\fips_original.csv", replace
-	
-	u "data\merged_covid_usa_prepared_extended.dta" , clear
-	keep fips
-	export delim "data\fips_extended.csv", replace
-```
-
-## Tracking missing LABOUR
-
-```s/
-	u "data\merged_covid_usa_prepared_extended.dta" , clear
-	keep if mi(farmwork)
-	keep fips county state
-	export delim "data\fips_missing_farmwork.csv", replace
-```
-	
+```	
