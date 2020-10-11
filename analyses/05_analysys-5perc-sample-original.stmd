@@ -22,7 +22,6 @@ Read data
 	}	
 	
 	u "merged_covid_usa_prepared_original_sample.dta" , clear
-	* later change to 
 	* u "merged_covid_usa_prepared_original.dta" , clear
 	
 	d
@@ -61,7 +60,6 @@ Largely based on [Stata's SP manual](https://www.stata.com/manuals/sp.pdf).
 
 ```s
 	spshape2dta cb_2018_us_county_20m_prep_sample.shp, replace
-	* later change to 
 	* spshape2dta cb_2018_us_county_20m_prep.shp, replace
 	
 	u cb_2018_us_county_20m_prep_sample, clear
@@ -94,6 +92,7 @@ Counties with missing information on `farmwork` and `poverty` are also excluded 
 
 ```s
 	merge 1:1 fips using cb_2018_us_county_20m_prep_sample
+	*merge 1:1 fips using cb_2018_us_county_20m_prep
 	assert _merge != 1
 	keep if _merge == 3
 	drop _merge
