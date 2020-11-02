@@ -102,14 +102,27 @@ Counties with missing information on `farmwork` and `poverty` are also excluded 
 
 ## Fitting model with a spatial lag of the dependent variable
 
-decision needed between `gs2sls` and `ml` options!
+Using `gs2sls` option (instead of `ml`) to guard against potential heteroskedasticity.
 
 ```s
 	spmatrix create contiguity W, replace 
 
-	spregress deaths nonenglish farmwork uninsured poverty older pop_dens time_case1 time_case100, ml dvarlag(W)
-	
 	spregress deaths nonenglish farmwork uninsured poverty older pop_dens time_case1 time_case100, gs2sls dvarlag(W)
 	
 	* estat impact
+	
+	est sto m_original_queen
+
+```
+
+## Sensitivity analysis using `rook` contiguity
+
+```s
+	spmatrix create contiguity W, rook replace 
+
+	spregress deaths nonenglish farmwork uninsured poverty older pop_dens time_case1 time_case100, gs2sls dvarlag(W)
+	
+	est sto m_original_rook
+	
+	est tab m_extended_queen m_extended_rook , b(%6.3f) p(%6.3f)
 ```

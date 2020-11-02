@@ -65,7 +65,7 @@ table tbody:last-child tr:last-child td {border-bottom:1px solid black;}
 <td>author: “Radoslaw Panczak”</td>
 </tr>
 <tr class="even">
-<td>date: 11 Oct 2020</td>
+<td>date: 2 Nov 2020</td>
 </tr>
 </tbody>
 </table>
@@ -179,7 +179,6 @@ Variable       n     Mean     S.D.      Min      .25      Mdn      .75      Max
   file cb_2018_us_county_20m_prep_sample_shp.dta created
   file cb_2018_us_county_20m_prep_sample.dta     created
 
-. * later change to 
 . * spshape2dta cb_2018_us_county_20m_prep.shp, replace
 .     
 . u cb_2018_us_county_20m_prep_sample, clear
@@ -188,7 +187,7 @@ Variable       n     Mean     S.D.      Min      .25      Mdn      .75      Max
 
 Contains data from cb_2018_us_county_20m_prep_sample.dta
   obs:           157                          
- vars:             5                          11 Oct 2020 20:09
+ vars:             5                          2 Nov 2020 19:46
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
               storage   display    value
 variable name   type    format     label      variable label
@@ -252,6 +251,7 @@ file cb_2018_us_county_20m_prep_sample.dta saved
     matched                               117  (_merge==3)
     ─────────────────────────────────────────
 
+. *merge 1:1 fips using cb_2018_us_county_20m_prep
 . assert _merge != 1
 
 . keep if _merge == 3
@@ -263,56 +263,11 @@ file cb_2018_us_county_20m_prep_sample.dta saved
 . * grmap deaths
 </pre>
 <h2 id="fitting-model-with-a-spatial-lag-of-the-dependent-variable">Fitting model with a spatial lag of the dependent variable</h2>
-<p>decision needed between <code>gs2sls</code> and <code>ml</code> options!</p>
+<p>Using <code>gs2sls</code> option (instead of <code>ml</code>) to guard against potential heteroskedasticity.</p>
 <pre class='stata'>. spmatrix create contiguity W, replace 
   weighting matrix in W contains 3 islands
 
 . 
-. spregress deaths nonenglish farmwork uninsured poverty older pop_dens time_case1 time_case100, ml dvarlag(W)
-  (117 observations)
-  (117 observations (places) used)
-  (weighting matrix defines 117 places)
-
-Performing grid search ... finished 
-
-Optimizing concentrated log likelihood:
-
-Iteration 0:   log likelihood = -488.34535  
-Iteration 1:   log likelihood = -488.33795  
-Iteration 2:   log likelihood = -488.33795  
-
-Optimizing unconcentrated log likelihood:
-
-Iteration 0:   log likelihood = -488.33795  
-Iteration 1:   log likelihood = -488.33795  (backed up)
-
-Spatial autoregressive model                    Number of obs     =        117
-Maximum likelihood estimates                    Wald chi2(9)      =     166.44
-                                                Prob > chi2       =     0.0000
-Log likelihood = -488.33795                     Pseudo R2         =     0.5875
-
-──────────────┬────────────────────────────────────────────────────────────────
-       deaths │      Coef.   Std. Err.      z    P>|z|     [95% Conf. Interval]
-──────────────┼────────────────────────────────────────────────────────────────
-deaths        │
-   nonenglish │   -.119463   .4808399    -0.25   0.804    -1.061892    .8229659
-     farmwork │   .2440078   .3404825     0.72   0.474    -.4233256    .9113412
-    uninsured │  -.0230808   .1811377    -0.13   0.899    -.3781041    .3319425
-      poverty │   .1673793   .2677806     0.63   0.532     -.357461    .6922196
-        older │  -.4383167   .2898713    -1.51   0.131    -1.006454    .1298205
-     pop_dens │   .0722591   .0116245     6.22   0.000     .0494755    .0950427
-   time_case1 │   .6388116   .1547476     4.13   0.000     .3355119    .9421114
- time_case100 │  -.3852036    .222698    -1.73   0.084    -.8216837    .0512764
-        _cons │  -10.13517   8.968322    -1.13   0.258    -27.71276    7.442417
-──────────────┼────────────────────────────────────────────────────────────────
-W             │
-       deaths │   .0144469    .118642     0.12   0.903    -.2180872     .246981
-──────────────┼────────────────────────────────────────────────────────────────
- var(e.deaths)│   247.0898   32.30573                      191.2338    319.2604
-──────────────┴────────────────────────────────────────────────────────────────
-Wald test of spatial terms:          chi2(1) = 0.01       Prob > chi2 = 0.9031
-
-.     
 . spregress deaths nonenglish farmwork uninsured poverty older pop_dens time_case1 time_case100, gs2sls dvarlag(W)
   (117 observations)
   (117 observations (places) used)
@@ -344,6 +299,79 @@ Wald test of spatial terms:          chi2(1) = 1.89       Prob > chi2 = 0.1697
 
 .     
 . * estat impact
+.     
+. est sto m_original_queen
+
+. 
+</pre>
+<h2 id="sensitivity-analysis-using-rook-contiguity">Sensitivity analysis using <code>rook</code> contiguity</h2>
+<pre class='stata'>. spmatrix create contiguity W, rook replace 
+  weighting matrix in W contains 3 islands
+
+. 
+. spregress deaths nonenglish farmwork uninsured poverty older pop_dens time_case1 time_case100, gs2sls dvarlag(W)
+  (117 observations)
+  (117 observations (places) used)
+  (weighting matrix defines 117 places)
+
+Spatial autoregressive model                    Number of obs     =        117
+GS2SLS estimates                                Wald chi2(9)      =     166.11
+                                                Prob > chi2       =     0.0000
+                                                Pseudo R2         =     0.5899
+
+─────────────┬────────────────────────────────────────────────────────────────
+      deaths │      Coef.   Std. Err.      z    P>|z|     [95% Conf. Interval]
+─────────────┼────────────────────────────────────────────────────────────────
+deaths       │
+  nonenglish │  -.1192228   .4839862    -0.25   0.805    -1.067818    .8293727
+    farmwork │   .2588012   .3429208     0.75   0.450    -.4133113    .9309137
+   uninsured │   .0157909   .1833139     0.09   0.931    -.3434978    .3750796
+     poverty │   .1832614   .2698682     0.68   0.497    -.3456705    .7121933
+       older │  -.4681431   .2925293    -1.60   0.110     -1.04149    .1052039
+    pop_dens │   .0704416   .0117314     6.00   0.000     .0474485    .0934347
+  time_case1 │   .5941377   .1572338     3.78   0.000     .2859651    .9023103
+time_case100 │  -.3911039    .224273    -1.74   0.081    -.8306708    .0484631
+       _cons │  -10.76116   9.031736    -1.19   0.233    -28.46304    6.940713
+─────────────┼────────────────────────────────────────────────────────────────
+W            │
+      deaths │   .1964226   .1401691     1.40   0.161    -.0783038    .4711489
+─────────────┴────────────────────────────────────────────────────────────────
+Wald test of spatial terms:          chi2(1) = 1.96       Prob > chi2 = 0.1611
+
+.     
+. est sto m_original_rook
+
+.     
+. est tab m_extended_queen m_extended_rook , b(%6.3f) p(%6.3f)
+
+─────────────┬────────────────────
+    Variable │ m_ext~n   m_ext~k  
+─────────────┼────────────────────
+deaths       │
+  nonenglish │  -0.775    -0.904  
+             │   0.772     0.735  
+    farmwork │   1.438     1.448  
+             │   0.416     0.413  
+   uninsured │   0.359     0.388  
+             │   0.727     0.706  
+     poverty │   2.456     2.523  
+             │   0.128     0.117  
+       older │  -1.734    -1.828  
+             │   0.324     0.300  
+    pop_dens │   0.388     0.387  
+             │   0.000     0.000  
+  time_case1 │   0.674     0.668  
+             │   0.083     0.085  
+time_case100 │  -0.733    -0.741  
+             │   0.041     0.039  
+       _cons │ -77.009   -75.964  
+             │   0.217     0.223  
+─────────────┼────────────────────
+W            │
+      deaths │   0.438     0.434  
+             │   0.025     0.021  
+─────────────┴────────────────────
+                       legend: b/p
 </pre>
 </body>
 </html>

@@ -15,7 +15,6 @@ else {
 }    
     
 u "merged_covid_usa_prepared_extended_sample.dta" , clear
-* later change to 
 * u "merged_covid_usa_prepared_extended.dta" , clear
     
 d
@@ -30,7 +29,6 @@ univar deaths, dec(0)
 * hist deaths, width(10)
 //_7
 spshape2dta cb_2018_us_county_20m_prep_sample.shp, replace
-* later change to 
 * spshape2dta cb_2018_us_county_20m_prep.shp, replace
     
 u cb_2018_us_county_20m_prep_sample, clear
@@ -51,6 +49,7 @@ drop if mi(farmwork)
 drop if mi(poverty)
 //_9
 merge 1:1 fips using cb_2018_us_county_20m_prep_sample
+* merge 1:1 fips using cb_2018_us_county_20m_prep
 assert _merge != 1
 keep if _merge == 3
 drop _merge
@@ -59,10 +58,19 @@ drop _merge
 //_10
 spmatrix create contiguity W, replace 
 
-spregress deaths nonenglish farmwork uninsured poverty older pop_dens time_case1 time_case100, ml dvarlag(W)
-    
 spregress deaths nonenglish farmwork uninsured poverty older pop_dens time_case1 time_case100, gs2sls dvarlag(W)
     
 * estat impact
+    
+est sto m_extended_queen
+
+//_11
+spmatrix create contiguity W, rook replace 
+
+spregress deaths nonenglish farmwork uninsured poverty older pop_dens time_case1 time_case100, gs2sls dvarlag(W)
+    
+est sto m_extended_rook
+    
+est tab m_extended_queen m_extended_rook , b(%6.3f) p(%6.3f)
 //_^
 log close
