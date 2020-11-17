@@ -9,6 +9,6 @@ SCORE project code for replication of
 
 *Note the version!* Replication attempt on the first submitted preprint.
 
-[OSF project](https://osf.io/gk6ve)
+[OSF project](https://osf.io/w7gdb/)
 
 (CC BY-NC-SA 4.0)
