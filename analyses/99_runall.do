@@ -8,7 +8,7 @@ markstat using "C:\external\SCORE_Fielding-Miller_covid_R3pV\analyses\05_analysy
 
 cd "C:\external\SCORE_Fielding-Miller_covid_R3pV\analyses"
 
-markdoc "C:\external\SCORE_Fielding-Miller_covid_R3pV\analyses\06_analysys-final-report.do" , mini export(pdf) replace style("simple")
+markdoc "C:\external\SCORE_Fielding-Miller_covid_R3pV\analyses\06_analysys-final-report.do", mini export(pdf) replace style("simple")
 
 ! COPY "C:\external\SCORE_Fielding-Miller_covid_R3pV\analyses\06_analysys-final-report.pdf" "C:\external\SCORE_Fielding-Miller_covid_R3pV\SCORE Report - Fielding-Miller_covid_R3pV - Cheng Panczak - Data Analytic Replication - 615k.pdf" 
 

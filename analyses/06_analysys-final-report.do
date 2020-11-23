@@ -1,7 +1,7 @@
 /***
 # **Replication of a Research Claim from Fielding-Miller et al. (2020), from medRxiv**  
 
-2020-11-22
+2020-11-23
 
 Replication Team: *Kent Jason Cheng* and *Radoslaw Panczak*  
 
@@ -9,7 +9,7 @@ Research Scientist: *Nick Fox*
 
 Action Editor: *Gustav Nilsonne*  
 
-Project ID: Fielding-Miller_covid_R3pV - Cheng/Panczak - Data Analytic Replication - 615k  
+Project ID: *Fielding-Miller_covid_R3pV - Cheng/Panczak - Data Analytic Replication - 615k*  
 
 OSF project: [https://osf.io/w7gdb/](https://osf.io/w7gdb/)  
 
@@ -21,20 +21,25 @@ set seed 12345
 
 if "`c(username)'" == "panczak" {
 		
-cd "C:\external\SCORE_Fielding-Miller_covid_R3pV\data"
+	cd "C:\external\SCORE_Fielding-Miller_covid_R3pV\data"
 
 }
 else {    
 	* settings for other users
 }	
 
-** Creating the Stata-format shapefile
+* command to generrate the reported
+* [requires markdoc package to be installed and configured]
+* markdoc "C:\external\SCORE_Fielding-Miller_covid_R3pV\analyses\06_analysys-final-report.do", mini export(pdf) replace style("simple")
+
+* Creating the Stata-format shapefile
 spshape2dta cb_2018_us_county_20m_prep.shp, replace
 u cb_2018_us_county_20m_prep, clear
 d
 spset fips, modify replace
 spset, modify coordsys(latlong, miles)
 sa, replace 
+//ON
 
 /***
 ## Claim summary 
@@ -50,6 +55,7 @@ Criteria for a successful replication attempt is a statistically significant eff
 ### Stage 1: analyses using "extended" dataset
 ***/
 
+//OFF
 * ***********************************
 * extended analysis
 
@@ -165,13 +171,16 @@ There were no deviations from preregistration during the analysis.
 
 ## Description of materials provided.
 
-The following materials are publicly available on the [OSF project site](https://osf.io/w7gdb/) :
+The following materials are publicly available on the [OSF project site](https://osf.io/w7gdb/):
+
+- The raw spatial datafile saved as shape file: `cb_2018_us_county_20m.zip`
+- The spatial data prepraration files saved as literate programing markdown for R: `01_spatial-sample.Rmd`
+- The analytic spatial datafile saved as shape file: `cb_2018_us_county_20m_prep.zip`
 
 - The raw datafile saved as Stata file: `merged_covid_usa_v2.dta`
-- The analytic datafiles saved as Stata files: `merged_covid_usa_prepared_original.dta` and `merged_covid_usa_prepared_original.dta`
-- The raw spatial datafile saved as shape file: `cb_2018_us_county_20m.zip`
-- The analytic spatial datafile saved as shape file: `cb_2018_us_county_20m_prep.zip`
 - The data prepraration files saved as literate programing markdown for Stata: `02_data-preparation-extended.stmd` and `04_data-preparation-original.stmd`
+
+- The analytic datafiles saved as Stata files: `merged_covid_usa_prepared_original.dta` and `merged_covid_usa_prepared_original.dta`
 - The full data analysis script, provided as a Stata markdown document: `06_analysys-final-report.do` with the pdf output file being this report.
 
 ## Citation
