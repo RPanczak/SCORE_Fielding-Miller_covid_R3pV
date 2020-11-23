@@ -1,5 +1,5 @@
 capture log close
-log using "analyses\02_data-preparation-extended", smcl replace
+log using "C:\external\SCORE_Fielding-Miller_covid_R3pV\analyses\02_data-preparation-extended", smcl replace
 //_1
 display c(current_date)
 //_2q

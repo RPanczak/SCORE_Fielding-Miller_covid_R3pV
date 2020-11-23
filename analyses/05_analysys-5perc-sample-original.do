@@ -70,6 +70,6 @@ spregress deaths nonenglish farmwork uninsured poverty older pop_dens time_case1
     
 est sto m_original_rook
     
-est tab m_extended_queen m_extended_rook , b(%6.3f) p(%6.3f)
+est tab m_original_queen m_original_rook , b(%6.3f) p(%6.3f)
 //_^
 log close
