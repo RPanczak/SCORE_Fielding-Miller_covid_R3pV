@@ -11,4 +11,6 @@ SCORE project code for replication of
 
 [OSF project](https://osf.io/w7gdb/)
 
+Archived on [![DOI](https://zenodo.org/badge/294673999.svg)](https://zenodo.org/badge/latestdoi/294673999)
+
 (CC BY-NC-SA 4.0)
