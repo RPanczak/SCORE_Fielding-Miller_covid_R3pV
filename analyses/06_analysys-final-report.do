@@ -1,7 +1,7 @@
 /***
 # **Replication of a Research Claim from Fielding-Miller et al. (2020), from medRxiv**  
 
-2020-11-23
+2021-05-25
 
 Replication Team: *Kent Jason Cheng* and *Radoslaw Panczak*  
 
@@ -25,10 +25,10 @@ if "`c(username)'" == "panczak" {
 
 }
 else {    
-	* settings for other users
+	* placeholder for settings for other users
 }	
 
-* command to generrate the reported
+* command to generate this report
 * [requires markdoc package to be installed and configured]
 * markdoc "C:\external\SCORE_Fielding-Miller_covid_R3pV\analyses\06_analysys-final-report.do", mini export(pdf) replace style("simple")
 
@@ -44,15 +44,15 @@ sa, replace
 /***
 ## Claim summary 
 
-There is a negative association between insured status and mortality. This reflects the following statement from the paper's abstract: *Percentage of uninsured individuals was associated with lower reported COVID-19 mortality (b = -0.36, p = 0.001).* The claim is tested with a spatial autoregressive model to assess the association between number of deaths and percentage of uninsured individuals, adjusting for potential confounders, and fitted the model with a spatial lag of the dependent variable based on a contiguity matrix. The finding is that the percentage of uninsured individuals was associated with **lower reported COVID-19 mortality (b = -0.36, p = 0.001).**
+There is a negative association between insured status and mortality. This reflects the following statement from the paper's abstract: *Percentage of uninsured individuals was associated with lower reported COVID-19 mortality*. The claim is tested with a spatial autoregressive model to assess the association between number of deaths and percentage of uninsured individuals, adjusting for potential confounders, and fitted the model with a spatial lag of the dependent variable based on a contiguity matrix. The finding is that **the percentage of uninsured individuals was associated with lower reported COVID-19 mortality.**
 
 ## Replication Criteria
 
-Criteria for a successful replication attempt is a statistically significant effect (alpha = .05, two tailed) in the same pattern as the original study on the focal hypothesis test (H*). For this study, this criteria is met by obtaining a statistically significant (p- value specified in the preprint is 0.001) regression coefficient from the adjusted model run on the subsample of non-urban counties.
+Criteria for a successful replication attempt is a statistically significant effect (alpha = .05, two tailed) in the same pattern as the original study on the focal hypothesis test (H*). For this study, this criteria is met by obtaining a statistically significant regression coefficient from the adjusted model run on the subsample of non-urban counties.
 
-## Replication Result
+## Replication Results
 
-### Stage 1: analyses using "extended" dataset
+### Analyses using "extended" dataset
 ***/
 
 //OFF
@@ -86,9 +86,9 @@ drop _merge
 //ON
 
 /***
-For stage 1 data collection when the dataset extended beyond the time of the preprint analyses was used, we found no significant effect of the `uninsured` variable. Table below reports full details of the regression model and number of observations used for the analysis.  
+For the first analysis we used dataset that extended beyond the cutoff of the original work. We found no significant effect of the `uninsured` variable. Table below reports full details of the regression model and number of observations used for the analysis.  
 
-At stage 1, the replication was **unsuccessful** according to SCORE criteria. 
+Using the extended dataset the replication was **unsuccessful** according to SCORE criteria. 
 ***/
 
 * SAR models 
@@ -109,7 +109,7 @@ spregress deaths nonenglish farmwork uninsured poverty older pop_dens time_case1
 * esttab m_extended_queen, b(%6.3f) p(%6.3f) nostar wide nopa nodep nomti nonum
 
 /***
-### Stage 2: analyses using "original" dataset
+### Analysis using "original" dataset
 ***/
 
 //OFF
@@ -143,9 +143,9 @@ drop _merge
 //ON
 
 /***
-For stage 2 data collection when the dataset created suing specifications from the preprint was used, we found significant effect of the `uninsured` variable. The effect was observed in the same direction, but it was weaker and the p-value higher than that reported in the preprint. Table below reports full details of the regression model and number of observations used for the analysis.  
+For the second analysis we used dataset created according to cutoff date reported in the preprint. We found significant effect of the `uninsured` variable. The effect was observed in the same direction, but it was weaker and the p-value higher than that reported in the preprint. Table below reports full details of the regression model and number of observations used for the analysis.  
 
-At stage 1, the replication was **unsuccessful** according to SCORE criteria. 
+Using the original dataset the replication was **successful** according to SCORE criteria. 
 ***/
 
 * SAR models 
@@ -155,7 +155,7 @@ spregress deaths nonenglish farmwork uninsured poverty older pop_dens time_case1
 * est sto m_original_queen
 * esttab m_original_queen, b(%6.3f) p(%6.3f) nostar wide nopa nodep nomti nonum
 /***
-Once again the analysis was not affected by alternative definition of neighbourhoods. 
+Once again the analysis was not largely affected by alternative definition of neighbourhoods. However, the *p-value* of the investigated paramenter reached exactly the specified treshold of 0.05.
 ***/
 
 ** Sensitivity analysis using `rook` contiguity
@@ -170,6 +170,22 @@ spregress deaths nonenglish farmwork uninsured poverty older pop_dens time_case1
 There were no deviations from preregistration during the analysis.
 
 ## Description of materials provided.
+
+### Data sources
+
+The COVID-19 deaths data come from New York Times: 
+
+The New York Times. (2021). Coronavirus (Covid-19) Data in the United States. Retrieved 2020-09-26, from https://github.com/nytimes/covid-19-data.
+
+The data on proportion of households with limited English speaking ability, percentages of individuals living below poverty and over the age of 65, the percentage of uninsured, population come from the US Census Bureau: 
+
+Social Explorer Tables: ACS 2018 (5-Year Estimates)(SE), ACS 2018 (5-Year Estimates), Social Explorer; U.S. Census Bureau
+
+The data on the percent of farmworkers come from the US Department of Agriculture National Agricultural Statistics Service (NASS):
+
+USDA National Agricultural Statistics Service, 2017 Census of Agriculture. Complete data available at www.nass.usda.gov/AgCensus.
+
+### Code
 
 The following materials are publicly available on the [OSF project site](https://osf.io/w7gdb/):
 
